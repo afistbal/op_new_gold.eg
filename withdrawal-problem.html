@@ -1,0 +1,690 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdrawal Problem</title>
+    <!-- 引入 Vant 样式 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@2/lib/index.css">
+    <style>
+        body {
+            background-color: #f7f8ff;
+            margin: 0;
+            font-family: 'Helvetica Neue', Helvetica, Segoe UI, Arial, Roboto, 'PingFang SC', miui, 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+        }
+
+        textarea::placeholder {
+            color: #888;
+            /* 灰色 */
+            font-size: 13px;
+            font-weight: 500;
+            /* 字体大小 */
+            font-family: 'Helvetica Neue', Helvetica, Segoe UI, Arial, Roboto, 'PingFang SC', miui, 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+        }
+
+        input:focus {
+            outline: none;
+        }
+
+        .problem-title {
+            background-color: #fff;
+            text-align: center;
+            padding: 12px 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+        }
+
+        .container {
+            margin: 60px 10px 10px;
+
+        }
+
+        .container .order-number .order-number-title {
+            color: #c8c9cc;
+            margin: 12px 0;
+            font-size: 13px;
+        }
+
+        .container .order-number .order-number-pdf {
+            margin: 12px 0;
+            font-size: 13px;
+        }
+
+        .container .order-number .order-number-pdf::after {
+            content: ' *';
+            color: #f00606;
+        }
+
+        .container .order-number .order-number-title::after {
+            content: ' *';
+            color: #f00606;
+        }
+
+        .container .order-number #keyInput,
+        #orderNumber,
+        .container .order-number .order-input {
+            width: 100%;
+            padding: 12px;
+            outline: none;
+            border: none;
+            font-size: 13px;
+            color: #888;
+            border-radius: 3px;
+            box-shadow: 1px 1px 10px 1px rgba(0, 0, 0, 0.1);
+        }
+
+        #pdfInput {
+            display: none;
+        }
+
+        #uploadPdf {
+            width: 120px;
+            height: 120px;
+            box-shadow: 1px 1px 10px 1px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-container {
+            width: 100%;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+            border-radius: 20px;
+        }
+
+        #progress {
+            /* width: 0;
+            height: 20px;
+            background: green; */
+            height: 20px;
+            width: 0;
+            line-height: 20px;
+            text-align: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 20px;
+            /* background: linear-gradient(90deg, #4facfe, #00f2fe); */
+            background: linear-gradient(90deg, #f8786b, #fe736e);
+            box-shadow: 0 2px 10px rgba(0, 200, 255, 0.4);
+            transition: width 0.5s ease-in-out;
+        }
+
+        #progressText {
+            /* color: green; */
+            color: white;
+
+        }
+
+        #uploadPdf {
+            background-color: #ffffff;
+        }
+
+        #uploadPdf #uploadNo {
+            width: 120px;
+            height: 120px;
+            color: #c8c9cc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            border-radius: 3px;
+            background-color: #ffffff;
+            /* display: none; */
+        }
+
+        #uploadPdf #uploadYes {
+            display: none;
+        }
+
+        #uploadPdf #loading {
+
+            display: none;
+        }
+
+        #uploadPdf #loading .rotate-img {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #uploadPdf #loading .rotate-img img {
+            width: 30px;
+            height: 30px;
+        }
+
+        #uploadPdf #uploadYes #uploadPDFImg {
+            width: 100%;
+            height: 100%;
+        }
+
+        #uploadPdf #uploadImg {
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+
+        }
+
+        .tips {
+            font-size: 13px;
+            margin: 12px 0;
+        }
+
+        #confirm {
+            border-radius: 100px;
+            color: #ffffff;
+            font-size: 15px;
+            padding: 10px 0;
+            margin: 100px 14px;
+            text-align: center;
+            background: linear-gradient(90deg, #f8786b, #fe736e);
+        }
+
+        /* 镜像效果 */
+        .mirrored {
+            transform: scaleX(-1);
+        }
+        .mirrored .order-number {
+            text-align: right;
+        }
+        .mirrored .order-input {
+            text-align: end;
+        }
+        .mirrored .order-number-pdf, .mirrored .order-input {
+            transform: scaleX(-1);
+        }
+        .mirrored .order-number-title, .mirrored .tips {
+            transform: scaleX(-1);
+        }
+        .mirrored .tips {
+            text-align: right;
+        }
+        .mirrored #uploadPdf {
+            transform: scaleX(-1);
+        }
+        .mirrored #confirm {
+            transform: scaleX(-1);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="problem-title">
+        Withdrawal Problem
+    </div>
+    <div class="container" id="container">
+        <div class="order-number">
+            <div class="order-number-title">Order Amount</div>
+            <input type="text" id="orderAmount" disabled class="order-input" placeholder="please enter order amount">
+        </div>
+        <div class="order-number">
+            <div class="order-number-title">Order Number</div>
+            <input type="text" id="orderNumber" disabled class="order-input" placeholder="please enter order number">
+        </div>
+        <div class="order-number">
+            <div class="order-number-pdf">Problem Description</div>
+            <textarea id="desc" class="order-input" rows="5" cols="40"
+                placeholder="please enter problem description"></textarea>
+        </div>
+        <!-- <div class="order-number">
+            <div class="order-number-pdf">Receiver UPI ID</div>
+            <input type="text" id="upiId" class="order-input" placeholder="please enter UPI ID">
+        </div> -->
+        <div class="order-number">
+            <div class="order-number-pdf"> More than 3 days not receive,attach bank statement(PDF size limit: 5 MB)
+            </div>
+            <input type="file" id="pdfInput" accept="application/pdf">
+            <div id="uploadPdf">
+                <div id="uploadNo">
+                    <img id="uploadImg" src="./images/icon_upload@2x.png" alt="">
+                    <span class="upload-text">Upload</span>
+                </div>
+                <div id="uploadYes">
+                    <img id="uploadPDFImg" src="./images/pdf-img.png" alt="">
+                </div>
+                <div id="loading">
+                    <div class="rotate-img">
+                        <img src="./images/loading.gif">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 进度条 -->
+            <div class="progress-container">
+                <div id="progress">
+                    <span id="progressText">0%</span>
+                </div>
+            </div>
+            <!-- <p id="progressText">0%</p> -->
+        </div>
+        <div class="tips">
+            If withdraw did not receive more than 72 hours,download PDF bank statement and submit on self-service center
+            you can also contact customer service to resolve the issue
+        </div>
+        <div id="confirm">Confirm</div>
+    </div>
+    <script src="./js/lang.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+    <!-- 引入 Vue (Vant2 依赖 Vue2) -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.min.js"></script>
+    <!-- 引入 Vant JS -->
+    <script src="https://cdn.jsdelivr.net/npm/vant@2/lib/vant.min.js"></script>
+    <script>
+        const { PDFDocument } = PDFLib; // 从全局对象拿
+        const input = document.getElementById('pdfInput');
+        let orderAmount = document.getElementById('orderAmount');
+        let orderNumber = document.getElementById('orderNumber');
+        // const upiId = document.getElementById('upiId');
+        const desc = document.getElementById('desc');
+        const keyInput = document.getElementById('keyInput');
+        const img = document.getElementById('uploadPdf');
+        const btn = document.getElementById('confirm');
+        const uploadNo = document.getElementById('uploadNo');
+        const uploadYes = document.getElementById('uploadYes');
+        const loading = document.getElementById('loading');
+        let webPathUrl = ''
+        // const token = getQueryParams().token
+        const CHUNK_SIZE = 3 * 1024 * 1024; // 每片 3M
+        let uploadedSize = 0; // 已上传字节数
+        const params = new URLSearchParams(window.location.search);
+        orderAmount.value = params.get("orderAmount");
+        orderNumber.value = params.get("orderNumber");
+        img.addEventListener('click', () => {
+            input.click();
+        });
+        /* ---------------------------
+        * 读取 URL 参数
+        * ------------------------- */
+        function getUrlParam(key) {
+            var params = new URLSearchParams(window.location.search);
+            return params.get(key);
+        }
+
+        /* ---------------------------
+         * 统一语言码格式（可选增强）
+         * - 转小写
+         * - 去掉地区后缀 en-US -> en, hi-IN -> hi
+         * ------------------------- */
+        function normalizeLang(code) {
+            if (!code) return "";
+            code = String(code).trim().toLowerCase();
+            var i = code.indexOf("-");
+            if (i > -1) {
+                code = code.slice(0, i);
+            }
+            return code;
+        }
+        /* ---------------------------
+    * 从全局翻译包中取语言数据，若缺失则回退 en
+    * ------------------------- */
+        function getLangData(langCode) {
+            var packs = window.BEGINNER_GUIDE_TRANSLATIONS || {};
+            if (packs[langCode]) return packs[langCode];
+            return packs["en"] || { allData: {}, urlData: [] };
+        }
+        /* ---------------------------
+         * 你的 getAppLanguage()（稍作增强）
+         * 优先原生 -> URL ?lang= -> 默认 en
+         * 白名单：en, hi（可自行扩展）
+         * ------------------------- */
+        function getAppLanguage() {
+            var appLanguage = null;
+            try {
+                appLanguage = window.GLJsBridge.getLanguage(); // 原生容器提供
+            } catch (error) {
+                // 忽略，进入 fallback
+            }
+
+            if (!appLanguage) {
+                var lang = getUrlParam("lang");
+                appLanguage = lang ? lang : "ar";
+            }
+
+            appLanguage = normalizeLang(appLanguage);
+
+            switch (appLanguage) {
+                case "en":
+                    return "en";
+                case "hi":
+                    return "hi";
+                // 如需添加更多语言，在这里补分支即可：
+                // case "pt": return "pt";
+                case "ar": return "ar";
+                case "eg": return "ar";
+                default:
+                    return "en";
+            }
+        }
+        function getQueryParams() {
+            const search = window.location.search; // "?name=John&age=30"
+            const obj = {};
+
+            if (search) {
+                const query = search.substring(1); // 去掉 "?"
+                const pairs = query.split("&");     // ["name=John", "age=30"]
+
+                pairs.forEach(pair => {
+                    const [key, value] = pair.split("=");
+                    obj[decodeURIComponent(key)] = decodeURIComponent(value || "");
+                });
+            }
+
+            return obj;
+        }
+        function uploadChunk(file, fileName, fileSize, state, type) {
+            return new Promise((resolve, reject) => {
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("name", fileName);
+                formData.append("type", type);
+                formData.append("orderNumber", orderNumber.value);
+                formData.append("chunk", 0);
+                formData.append("chunks", 1);
+
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", "https://upeg.yano777.com/user/file/chunk");
+
+                xhr.upload.onprogress = function (event) {
+                    if (event.lengthComputable) {
+                        const currentUploaded = state.uploadedSize + event.loaded;
+                        let percent = (currentUploaded / fileSize) * 100;
+                        if (percent > 100) percent = 100;
+                        updateProgress(percent.toFixed(2));
+                    }
+                };
+
+                xhr.onload = function () {
+                    if (xhr.status == 200) {
+                        // state.uploadedSize += chunk.size; // 累加到 state 里
+                        let response = JSON.parse(xhr.responseText);
+                        // console.log("response", response);
+
+                        if (response.code == 200) {
+                            webPathUrl = response.data.webPath
+                            vant.Toast(window.toastMessages.uploadSuccess);
+                            if (response.data.status == 1 && response.data.webPath != '') {
+                                webPathUrl = response.data.webPath
+                                vant.Toast(window.toastMessages.uploadSuccess);
+                            } else if (response.data.status == 0) {
+                                uploadNo.style.display = 'flex'
+                                loading.style.display = 'none'
+                                uploadYes.style.display = 'none'
+                                vant.Toast(window.toastMessages.uploadFail)
+                                updateProgress(0)
+                                reject();
+                            }
+                            resolve();
+                        } else {
+                            uploadNo.style.display = 'flex'
+                            loading.style.display = 'none'
+                            uploadYes.style.display = 'none'
+                            vant.Toast(window.toastMessages.networkError);
+                            updateProgress(0)
+                            reject();
+                        }
+                    } else {
+                        uploadNo.style.display = 'flex'
+                        loading.style.display = 'none'
+                        uploadYes.style.display = 'none'
+                        vant.Toast(window.toastMessages.networkError);
+                        updateProgress(0)
+                        reject();
+                    }
+                };
+
+                xhr.onerror = reject;
+                xhr.send(formData);
+
+            });
+        }
+        // 更新进度条
+        function updateProgress(percent) {
+            document.getElementById("progress").style.width = percent + "%";
+            document.getElementById("progressText").innerText = percent + "%";
+        }
+        // 选择文件后自动上传
+        input.addEventListener('change', async function () {
+            const file = this.files[0];
+
+            // console.log("RL.createObjectURL(file)", URL.createObjectURL(file));
+            if (!file) return;
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            // MIME 类型检查
+            if (file.type !== 'application/pdf') {
+                vant.Toast(window.toastMessages.onlyPdf);
+                this.value = ''; // 清空选择
+                return;
+            }
+            if (file.size > maxSize) {
+                vant.Toast(window.toastMessages.fileTooLarge);
+                this.value = "";
+                return;
+            }
+            // 每次新上传都初始化
+            let state = { uploadedSize: 0 };
+            updateProgress(0);
+            // 分片上传
+
+            // const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+
+            uploadNo.style.display = 'none'
+            loading.style.display = 'block'
+            uploadYes.style.display = 'none'
+            // for (let i = 0; i < totalChunks; i++) {
+            //     const start = i * CHUNK_SIZE;
+            //     const end = Math.min(file.size, start + CHUNK_SIZE);
+            //     const chunk = file.slice(start, end);
+            //     await uploadChunk(chunk, file.name, i, totalChunks, file.size, state, file.type);
+            // }
+            // 分片上传
+            // 1. 读取 PDF
+            const arrayBuffer = await file.arrayBuffer();
+            const pdfDoc = await PDFDocument.load(arrayBuffer);
+
+            // 2. 重新保存，pdf-lib 会去掉冗余数据，相当于轻度压缩
+            const compressedPdfBytes = await pdfDoc.save({ useObjectStreams: true });
+
+            // 3. 生成 Blob（可以转换成 File）
+            const compressedBlob = new Blob([compressedPdfBytes], { type: "application/pdf" });
+            const compressedFile = new File([compressedBlob], "compressed.pdf", { type: "application/pdf" });
+
+            // console.log("原文件大小:", (file.size / 1024).toFixed(2), "KB");
+            // console.log("压缩后大小:", (compressedFile.size / 1024).toFixed(2), "KB");
+
+            // 4. 上传给后端
+            // const formData = new FormData();
+            // formData.append("file", compressedFile);
+            // formData.append("name", file.name);
+            // formData.append("type", file.type);
+            // formData.append("orderNumber", orderNumber.value);
+            // formData.append("chunk", index);
+            // formData.append("chunks", totalChunks);
+
+            await uploadChunk(file, file.name, file.size, state, file.type);
+
+            updateProgress(100); // 保证收尾
+            uploadNo.style.display = 'none'
+            loading.style.display = 'none'
+            uploadYes.style.display = 'block'
+        });
+        btn.addEventListener('click', () => {
+            const title = orderNumber.value.trim();
+            const file = input.files[0]; // 获取用户选择的文件
+            if (!orderAmount.value) {
+                vant.Toast(window.toastMessages.peOrderAmount);
+                return;
+            }
+            if (!orderNumber.value) {
+                vant.Toast(window.toastMessages.peOrderNumber);
+                return;
+            }
+            if (!desc.value) {
+                vant.Toast(window.toastMessages.descEmpty);
+                return;
+            }
+            if (!file) {
+                vant.Toast(window.toastMessages.pdfEmpty);
+                return;
+            }
+            let oder_title = 'Withdrawal Problem'
+            json_str = JSON.stringify({
+                type: 2,
+                order_id: title,
+                attachment: file.name,
+                webPath: webPathUrl,
+                desc: desc.value.trim(),
+                // upiId: upiId.value.trim(),
+            })
+            const payload = {
+                title: oder_title,
+                content: json_str
+            }
+
+            // fetch('https://testh5api.lucky777vip.cc/user/issue/add', {
+            // fetch('https://testh5api.lucky777vip.cc/user/issue/plane', { 2025-11-10 调整改为 https://ieg.yano777.com/user/issue/plane
+            fetch('https://ieg.yano777.com/user/issue/plane', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Authorization: token
+                },
+                body: JSON.stringify(payload)
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.code == 200) {
+                        vant.Toast(window.toastMessages.submitSuccess)
+                    } else {
+                        vant.Toast(data.message)
+                    }
+                    // console.log("success", data);
+                })
+                .catch(err => {
+                    vant.Toast(err)
+                    console.error("fail", err);
+                });
+        });
+        window.LANG_PACK = {
+            en: {
+                withdrawalProblem: "Withdrawal Problem",
+                orderAmount: "Order Amount",
+                orderNumber: "Order Number",
+                problemDescription: "Problem Description",
+                moreThan3Days: "More than 3 days not receive, attach bank statement (PDF size limit: 5 MB)",
+                tips: "If withdraw did not receive more than 72 hours, download PDF bank statement and submit on self-service center. You can also contact customer service to resolve the issue.",
+                confirm: "Confirm",
+                placeholderOrderAmount: "please enter order amount",
+                placeholderOrderNumber: "please enter order number",
+                placeholderDesc: "please enter problem description",
+                toastFile: "File size cannot exceed 5MB",
+                toastDesc: "please enter problem description",
+                toastPdf: "Please select pdf",
+                toastUploadSuccess: "Upload successful",
+                toastUploadFail: "Please re-upload",
+                toastNetworkError: "network error, please try again next",
+                toastSubmitSuccess: "Submission successful",
+                toastUpload: "Upload",
+                toastOnlyPdf: "Only PDF files are allowed",
+                toastPeOrderAmount: "please enter order amount",
+                toastPeOrderNumber: "please enter order number",
+            },
+            hi: {
+                withdrawalProblem: "निकासी समस्या",
+                orderAmount: "ऑर्डर राशि",
+                orderNumber: "ऑर्डर संख्या",
+                problemDescription: "समस्या विवरण",
+                moreThan3Days: "3 दिनों से अधिक समय तक प्राप्त नहीं, बैंक स्टेटमेंट संलग्न करें (PDF आकार सीमा: 5 MB)",
+                tips: "यदि निकासी 72 घंटे से अधिक समय तक प्राप्त नहीं हुई, तो PDF बैंक स्टेटमेंट डाउनलोड करें और सेल्फ-सर्विस केंद्र में जमा करें। आप ग्राहक सेवा से भी संपर्क कर सकते हैं।",
+                confirm: "पुष्टि करें",
+                placeholderOrderAmount: "कृपया ऑर्डर राशि दर्ज करें",
+                placeholderOrderNumber: "कृपया ऑर्डर संख्या दर्ज करें",
+                placeholderDesc: "कृपया समस्या विवरण दर्ज करें",
+                toastFile: "फ़ाइल का आकार 5MB से अधिक नहीं हो सकता",
+                toastDesc: "कृपया समस्या विवरण दर्ज करें",
+                toastPdf: "कृपया PDF चुनें",
+                toastUploadSuccess: "अपलोड सफल हुआ",
+                toastUploadFail: "कृपया पुनः अपलोड करें",
+                toastNetworkError: "नेटवर्क त्रुटि, कृपया बाद में पुनः प्रयास करें",
+                toastSubmitSuccess: "सबमिशन सफल हुआ",
+                toastUpload: "अपलोड करें",
+                toastOnlyPdf: "केवल PDF फ़ाइलों की अनुमति है",
+                toastPeOrderAmount: "कृपया ऑर्डर राशि दर्ज करें",
+                toastPeOrderNumber: "कृपया ऑर्डर संख्या दर्ज करें",
+            },
+            ar: {
+                withdrawalProblem: "مشكلة في السحب",
+                orderAmount: "مبلغ الطلب",
+                orderNumber: "رقم الطلب",
+                problemDescription: "وصف المشكلة",
+                moreThan3Days: "لم يتم الاستلام لأكثر من 3 أيام، أرفق كشف الحساب البنكي (الحد الأقصى لحجم PDF: 5 ميغابايت)",
+                tips: "إذا لم يتم استلام السحب خلال أكثر من 72 ساعة، قم بتنزيل كشف الحساب البنكي بصيغة PDF وأرسله عبر مركز الخدمة الذاتية. يمكنك أيضًا التواصل مع خدمة العملاء لحل المشكلة.",
+                confirm: "تأكيد",
+                placeholderOrderAmount: "يرجى إدخال مبلغ الطلب",
+                placeholderOrderNumber: "يرجى إدخال رقم الطلب",
+                placeholderDesc: "يرجى إدخال وصف المشكلة",
+                toastFile: "لا يمكن أن يتجاوز حجم الملف 5 ميغابايت",
+                toastDesc: "يرجى إدخال وصف المشكلة",
+                toastPdf: "يرجى اختيار ملف PDF",
+                toastUploadSuccess: "تم الرفع بنجاح",
+                toastUploadFail: "يرجى إعادة الرفع",
+                toastNetworkError: "خطأ في الشبكة، يرجى المحاولة لاحقًا",
+                toastSubmitSuccess: "تم الإرسال بنجاح",
+                toastUpload: "تحميل",
+                toastOnlyPdf: "يُسمح فقط بملفات PDF",
+                toastPeOrderAmount: "يرجى إدخال مبلغ الطلب",
+                toastPeOrderNumber: "يرجى إدخال رقم الطلب",
+            }
+        };
+
+        function applyLanguage() {
+            const lang = getAppLanguage();
+            const L = window.LANG_PACK[lang];
+
+            document.querySelector('.problem-title').innerText = L.withdrawalProblem;
+            document.querySelector('#confirm').innerText = L.confirm;
+            document.querySelector('.order-number:nth-child(1) .order-number-title').innerText = L.orderAmount;
+            document.querySelector('#orderAmount').placeholder = L.placeholderOrderAmount;
+            document.querySelector('.order-number:nth-child(2) .order-number-title').innerText = L.orderNumber;
+            document.querySelector('#orderNumber').placeholder = L.placeholderOrderNumber;
+            document.querySelector('.order-number:nth-child(3) .order-number-pdf').innerText = L.problemDescription;
+            document.querySelector('#desc').placeholder = L.placeholderDesc;
+            document.querySelector('.order-number:nth-child(4) .order-number-pdf').innerText = L.moreThan3Days;
+            document.querySelector('.order-number:nth-child(4) #uploadPdf #uploadNo .upload-text').innerText = L.toastUpload;
+            document.querySelector('.tips').innerText = L.tips;
+
+            // Toast 替换
+            window.toastMessages = {
+                fileTooLarge: L.toastFile,
+                descEmpty: L.toastDesc,
+                pdfEmpty: L.toastPdf,
+                uploadSuccess: L.toastUploadSuccess,
+                uploadFail: L.toastUploadFail,
+                networkError: L.toastNetworkError,
+                peOrderNumber: L.toastPeOrderNumber,
+                peOrderAmount: L.toastPeOrderAmount,
+                onlyPdf: L.toastOnlyPdf,
+                submitSuccess: L.toastSubmitSuccess
+            }
+        }
+
+        (function init() {
+            const langCode = getAppLanguage();
+            applyLanguage();
+            document.documentElement.setAttribute('lang', langCode);
+            const titleText = {
+                en: "Activity details",
+                hi: "",
+                ar: "تفاصيل النشاط",
+            }
+            document.title = titleText[langCode];
+            if (langCode === 'ar') {
+                const container = document.getElementById('container');
+                container.classList.add('mirrored');
+            }
+        })()
+    </script>
+</body>
+
+</html>

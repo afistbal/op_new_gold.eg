@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>About Us</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    /* ===== 基础 ===== */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Roboto", "Inter", sans-serif;
+      background-color: #f7f8ff;
+      color: #333;
+    }
+
+    .container-about-us {
+      height: 100vh;
+      padding-bottom: 1px;
+      overflow-y: auto;
+      background-color: #f7f8ff;
+    }
+
+    /* ===== 顶部导航（若不要，可删掉整个 .top-nav 块） ===== */
+    .top-nav {
+      padding: 10px 0;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(90deg, #f95959, #ff9a8e);
+      color: #ffffff;
+    }
+
+    .top-nav .back {
+      width: 18%;
+      padding: 10px 0 10px 10pxm;
+    }
+
+    .top-nav .back .back-img {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .top-nav .logo {
+      width: 64%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .top-nav .right-btn {
+      width: 18%;
+      font-size: 10px;
+    }
+
+    /* ===== 主体 ===== */
+    .content .back-img {
+      width: 100%;
+      display: block;
+    }
+
+    .agreement {
+      /* margin-top: 0.2rem;  (Vue 样式中注释掉了，可按需打开) */
+    }
+
+    /* 用 <a> 包裹整个 item，替代 Vue 的 @click + router.push */
+    .agreement .item-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      /* margin: 12px; */
+      padding: 28px 12px;
+      border-bottom: 1px #eeeff2 solid;
+      font-size: 14px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .agreement .item-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .agreement .item-left img {
+      width: 30px;
+      margin-right: 10px;
+    }
+
+    .agreement .item-right {
+      width: 20px;
+      text-align: right;
+    }
+
+    .agreement .item-right img {
+      width: 100%;
+    }
+
+    /* ===== 宽屏：>800px ===== */
+    @media (min-width: 801px) {
+      .container-about-us {
+        width: 400px;
+        margin: 0 auto;
+        height: 100vh;
+        overflow-y: auto;
+      }
+
+      .top-nav {
+        width: 400px;
+      }
+
+      .top-nav .back {
+        position: relative;
+        padding: 10px 0 10px 10px;
+      }
+
+      .top-nav .back .back-img {
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        top: 0;
+      }
+
+      .content .agreement {
+        margin-top: -20px;
+      }
+    }
+
+    /* ===== 540px~800px ===== */
+    @media (min-width: 540px) and (max-width: 800px) {
+      .container-about-us {
+        width: 540px;
+        margin: 0 auto;
+        height: 100vh;
+        overflow-y: auto;
+      }
+
+      .top-nav {
+        width: 540px;
+      }
+
+      .top-nav .back {
+        position: relative;
+        padding: 10px 0 10px 10px;
+      }
+
+      .top-nav .back .back-img {
+        width: 25px;
+        height: 25px;
+        position: absolute;
+        top: 0;
+      }
+
+      .content .agreement {
+        margin-top: -25px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-about-us">
+
+    <!-- ===== 顶部导航（如不需要可注释） ===== -->
+    <!-- <div class="top-nav">
+      <div class="back">
+        <img
+          class="back-img"
+          src="./assets/image/common/icon_back@2x.png"
+          alt="Back"
+          onclick="skipBack()"
+        />
+      </div>
+      <div class="logo" id="about-title">About Us</div>
+      <div class="right-btn"></div>
+    </div> -->
+
+    <!-- ===== 主内容 ===== -->
+    <div class="content">
+      <!-- 顶部大图 -->
+      <img class="back-img" src="./images/account/about_us.png?v=1.1.0" alt="About us banner" />
+
+      <div class="agreement">
+        <!-- item 1 -->
+        <a class="item-box" href="confidentiality-agreement.html">
+          <div class="item-left">
+            <img src="./images/account/icon_deposithist@2x.png?v=1.1.0" alt="" />
+            <span>Confidentiality Agreement</span>
+          </div>
+          <div class="item-right">
+            <img class="back-img" src="./images/icon_back_right@2x.png?v=1.1.0" alt="" />
+          </div>
+        </a>
+
+        <!-- item 2 -->
+        <a class="item-box" href="risk-agreement.html">
+          <div class="item-left">
+            <img src="./images/account/icon_risk@2x.png?v=1.1.0" alt="" />
+            <span>Risk Disclosure Agreement</span>
+          </div>
+          <div class="item-right">
+            <img class="back-img" src="./images/icon_back_right@2x.png?v=1.1.0" alt="" />
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+
+    /* -------------------------------------------------
+     * 返回上一级（含 fallback）
+     * - 有浏览历史：history.back()
+     * - 无历史：跳首页（按需改成你希望的地址）
+     * ------------------------------------------------- */
+    function skipBack() {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        // 没有历史：回到首页（根据实际情况修改）
+        window.location.href = "index.html";
+      }
+    }
+    (function init() {
+      if (window.GLJsBridge) {
+        window.GLJsBridge.setToolbarVisibility("0"); // 原生容器提供
+      }
+    })()
+  </script>
+</body>
+
+</html>

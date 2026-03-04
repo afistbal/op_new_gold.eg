@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل النشاط</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        body {
+            height: 100%;
+            font-size: 16px;
+        }
+
+        .top-img {
+            width: 100%;
+        }
+
+        .content {
+            padding: 10px 12px;
+        }
+
+        .content .title {
+            padding-bottom: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .content .click-text {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content .click-text .text-first {
+            color: #1E2637;
+            font-weight: 600;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .content .click-text .text-second {
+            color: #551a8b;
+            font-weight: 600;
+            font-size: 13px;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        @media (min-width: 401px) {
+            .container {
+                width: 400px;
+                margin: 0 auto;
+                height: 100vh;
+                overflow-y: auto;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+    <!-- <div id="app"></div> -->
+    <div class="container">
+        <img class="top-img" id="top-img" src="./images/activity/other-05-ar.png" alt="">
+        <div class="content">
+            <div class="title" id="title">YANO 777 Official Channel</div>
+            <div class="click-text">
+                <div class="text-first" id="text-first">Click here to check &nbsp;</div>
+                <div class="text-second" id="officialBtn">YANO 777 Official Channel</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        /* ---------------------------
+        * 读取 URL 参数
+        * ------------------------- */
+        function getUrlParam(key) {
+            var params = new URLSearchParams(window.location.search);
+            return params.get(key);
+        }
+
+        /* ---------------------------
+         * 统一语言码格式（可选增强）
+         * - 转小写
+         * - 去掉地区后缀 en-US -> en, hi-IN -> hi
+         * ------------------------- */
+        function normalizeLang(code) {
+            if (!code) return "";
+            code = String(code).trim().toLowerCase();
+            var i = code.indexOf("-");
+            if (i > -1) {
+                code = code.slice(0, i);
+            }
+            return code;
+        }
+
+        /* ---------------------------
+    * 从全局翻译包中取语言数据，若缺失则回退 en
+    * ------------------------- */
+        function getLangData(langCode) {
+            var packs = window.BEGINNER_GUIDE_TRANSLATIONS || {};
+            if (packs[langCode]) return packs[langCode];
+            return packs["en"] || { allData: {}, urlData: [] };
+        }
+        /* ---------------------------
+         * 你的 getAppLanguage()（稍作增强）
+         * 优先原生 -> URL ?lang= -> 默认 en
+         * 白名单：en, hi（可自行扩展）
+         * ------------------------- */
+        function getAppLanguage() {
+            var appLanguage = null;
+            try {
+                appLanguage = window.GLJsBridge.getLanguage(); // 原生容器提供
+            } catch (error) {
+                // 忽略，进入 fallback
+            }
+
+            if (!appLanguage) {
+                var lang = getUrlParam("lang");
+                appLanguage = lang ? lang : "ar";
+            }
+
+            appLanguage = normalizeLang(appLanguage);
+
+            switch (appLanguage) {
+                case "en":
+                    return "en";
+                case "hi":
+                    return "hi";
+                // 如需添加更多语言，在这里补分支即可：
+                // case "pt": return "pt";
+                case "ar": return "ar";
+                case "eg": return "ar";
+                default:
+                    return "en";
+            }
+        }
+        document.getElementById('officialBtn').addEventListener('click', skipOfficial);
+        function skipOfficial() {
+
+            if (window.GLJsBridge) {
+                window.GLJsBridge.jumpWebBrows('https://t.me/yano777_channel')
+            } else {
+                window.open('https://t.me/yano777_channel');
+            }
+        }
+        (function init() {
+            try {
+                window.GLJsBridge.setToolbarVisibility("0"); // 原生容器提供
+            } catch (error) {
+                // 忽略，进入 fallback
+            }
+            const langCode = getAppLanguage();                       // en / hi
+            // const pack = translations[langCode] || translations.en;  // fallback en
+            // const pack = getLangData(langCode);  // fallback en
+
+            // 设置 <html lang="">
+            document.documentElement.setAttribute('lang', langCode);
+            // 清空
+            // container.innerHTML = "";
+            const langText = {
+                en: {
+                    title: "YANO 777 Official Channel",
+                    clicktips: "Click here to check",
+                },
+                hi: {
+                    title: "लकी लॉटरी आधिकारिक चैनल",
+                    clicktips: "जांचने के लिए यहां क्लिक करें",
+                },
+                ar: {
+                    title: "القناة الرسمية لـ YANO 777",
+                    clicktips: "انقر هنا للتحقق",
+                }
+            };
+            const titleText = {
+                en: "Activity details",
+                hi: "",
+                ar: "تفاصيل النشاط",
+            }
+            document.title = titleText[langCode];
+
+            document.getElementById('title').textContent = langText[langCode].title;
+            document.getElementById('text-first').innerHTML = `${langText[langCode].clicktips} &nbsp;`;
+            document.getElementById('officialBtn').textContent = langText[langCode].title;
+            // // 1. 容器
+            // const container = document.createElement('div');
+            // container.className = 'container';
+
+            // // 2. 顶部图片
+            const topImg = document.getElementById('top-img');
+            topImg.src = `./images/activity/other-05${langCode == 'en' ? '' : `-${langCode}`}.png`;
+            // topImg.className = 'top-img';
+            // topImg.src = `./images/activity/other-05${langCode == 'en' ? '' : `-${langCode}`}.png`;
+            // topImg.alt = '';
+
+            // // 3. 内容块
+            // const content = document.createElement('div');
+            // content.className = 'content';
+
+            // // 4. 标题
+            // const title = document.createElement('div');
+            // title.className = 'title';
+            // title.textContent = langText[langCode].title;
+
+            // // 5. 点击提示区域
+            // const clickText = document.createElement('div');
+            // clickText.className = 'click-text';
+
+            // const textFirst = document.createElement('div');
+            // textFirst.className = 'text-first';
+            // textFirst.innerHTML = `${langText[langCode].clicktips} &nbsp;`;
+
+            // const textSecond = document.createElement('a');
+            // textSecond.className = 'text-second';
+            // textSecond.href = 'https://t.me/yano777_channel';
+            // textSecond.textContent = langText[langCode].title;
+
+            // // 6. 组装 clickText
+            // clickText.appendChild(textFirst);
+            // clickText.appendChild(textSecond);
+
+            // // 7. 组装 content
+            // content.appendChild(title);
+            // content.appendChild(clickText);
+
+            // // 8. 最终组装 container
+            // container.appendChild(topImg);
+            // container.appendChild(content);
+
+            // // 9. 添加到页面中
+            // document.getElementById('app').appendChild(container);
+        })()
+        var setHtmlFontSize = () => {
+            var htmlDom = document.getElementsByTagName('html')[0]
+            var htmlWidth = document.documentElement.clientWidth || document.body.clientWidth
+
+            const html = window.document.documentElement;
+            // 设备可视区域宽度
+            const deviceWidth = html.getBoundingClientRect().width;
+            // 设计图宽度
+            const designWidth = 750;
+            // 1rem代表的大小
+            const initFontSize = 100;
+
+            html.style.fontSize = (deviceWidth / designWidth) * initFontSize + "px";
+        }
+        window.onresize = setHtmlFontSize
+        setHtmlFontSize()
+    </script>
+</body>
+
+</html>

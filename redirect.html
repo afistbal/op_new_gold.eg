@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>redirect</title>
+    <style>
+			* {
+				margin: 0;
+				padding: 0;
+			}
+			body {
+				background: #fff;
+				color: #000;
+				min-height: 100vh;
+			}
+			
+			.container {
+				width: 100vw;
+				height: 100vh;
+			}
+    </style>
+		<script src="./js/GDBridge.js"></script>
+</head>
+<body>
+    <div class="container"></div>
+
+    <script>
+			function isApp() {
+				const appIdentification1 = '/native_com'
+				const appIdentification2 = '/native_net'
+				const userAgent = navigator.userAgent.toLowerCase();
+				return userAgent.indexOf(appIdentification1) !== -1 || userAgent.indexOf(appIdentification2) !== -1
+			}
+
+			let is_app = isApp();
+			alert(is_app);
+			if (is_app) {
+				GDBridge.closePage()
+			} else {
+				const hostname = window.location.hostname;
+				if (hostname !== '' && hostname) {
+					window.location.href = 'https://' + hostname + '/#/';
+				}
+				// window.location.href = 'https://wap.yano777.com/#/';
+				// window.location.href = 'https://h5.yano777.com/#/';
+			}
+    </script>
+</body>
+</html>

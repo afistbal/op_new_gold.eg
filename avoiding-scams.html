@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تفاصيل النشاط</title>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      -webkit-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    body {
+      height: 100%;
+      font-size: 16px;
+    }
+
+    .top-img {
+      width: 100%;
+    }
+
+    .content {
+      padding: 10px 12px;
+    }
+
+    .content .title {
+      padding-bottom: 10px;
+      text-align: center;
+    }
+
+    @media (min-width: 401px) {
+      .container {
+        width: 400px;
+        margin: 0 auto;
+        height: 100vh;
+        overflow-y: auto;
+      }
+    }
+  </style>
+ 
+</head>
+
+<body>
+  <div id="app"></div>
+  <!-- <div class="container">
+    <img class="top-img" src="./images/activity/other-04.png" alt="">
+    <div class="content">
+      <div class="title">YANO 777 Tips and Trick Avoid Scammer</div>
+      <img class="top-img" src="./images/activity/editor-02.png" alt="">
+    </div>
+  </div> -->
+   <script>
+    /* ---------------------------
+        * 读取 URL 参数
+        * ------------------------- */
+    function getUrlParam(key) {
+      var params = new URLSearchParams(window.location.search);
+      return params.get(key);
+    }
+
+    /* ---------------------------
+     * 统一语言码格式（可选增强）
+     * - 转小写
+     * - 去掉地区后缀 en-US -> en, hi-IN -> hi
+     * ------------------------- */
+    function normalizeLang(code) {
+      if (!code) return "";
+      code = String(code).trim().toLowerCase();
+      var i = code.indexOf("-");
+      if (i > -1) {
+        code = code.slice(0, i);
+      }
+      return code;
+    }
+
+    /* ---------------------------
+* 从全局翻译包中取语言数据，若缺失则回退 en
+* ------------------------- */
+    function getLangData(langCode) {
+      var packs = window.BEGINNER_GUIDE_TRANSLATIONS || {};
+      if (packs[langCode]) return packs[langCode];
+      return packs["en"] || { allData: {}, urlData: [] };
+    }
+    /* ---------------------------
+     * 你的 getAppLanguage()（稍作增强）
+     * 优先原生 -> URL ?lang= -> 默认 en
+     * 白名单：en, hi（可自行扩展）
+     * ------------------------- */
+    function getAppLanguage() {
+      var appLanguage = null;
+      try {
+        appLanguage = window.GLJsBridge.getLanguage(); // 原生容器提供
+      } catch (error) {
+        // 忽略，进入 fallback
+      }
+
+      if (!appLanguage) {
+        var lang = getUrlParam("lang");
+        appLanguage = lang ? lang : "ar";
+      }
+
+      appLanguage = normalizeLang(appLanguage);
+
+      switch (appLanguage) {
+        case "en":
+          return "en";
+        case "hi":
+          return "hi";
+        // 如需添加更多语言，在这里补分支即可：
+        // case "pt": return "pt";
+        case "ar": return "ar";
+        case "eg": return "ar";
+        default:
+          return "en";
+      }
+    }
+    (function init() {
+      try {
+        window.GLJsBridge.setToolbarVisibility("0"); // 原生容器提供
+      } catch (error) {
+        // 忽略，进入 fallback
+      }
+      const langCode = getAppLanguage();                       // en / hi
+      // const pack = translations[langCode] || translations.en;  // fallback en
+      // const pack = getLangData(langCode);  // fallback en
+      
+      // 设置 <html lang="">
+      document.documentElement.setAttribute('lang', langCode);
+      // 清空
+      // container.innerHTML = "";
+      const langText = {
+        en: "YANO 777 Tips and Trick Avoid Scammer",
+        hi: "लकी लॉटरी टिप्स और ट्रिक स्कैमर से सावधान रहें",
+        ar: "نصائح وحيل YANO 777 لتجنب المحتالين",
+      };
+      const titleText = {
+        en: "Activity details",
+        hi: "",
+        ar: "تفاصيل النشاط",
+      }
+      document.title = titleText[langCode];
+      // 1. 创建 container 容器
+      const container = document.createElement('div');
+      container.className = 'container';
+
+      // 2. 第一个图片
+      const topImg1 = document.createElement('img');
+      topImg1.className = 'top-img';
+      topImg1.src = `./images/activity/other-04${langCode == 'en' ? '' : `-${langCode}`}.png`;
+      topImg1.alt = '';
+
+      // 3. 创建 content 容器
+      const content = document.createElement('div');
+      content.className = 'content';
+
+      // 4. 创建 title 文本
+      const title = document.createElement('div');
+      title.className = 'title';
+      title.textContent = langText[langCode];
+
+      // 5. 第二个图片
+      const topImg2 = document.createElement('img');
+      topImg2.className = 'top-img';
+      topImg2.src = `./images/activity/editor-02${langCode == 'en' ? '' : `-${langCode}`}.png`;
+      topImg2.alt = '';
+
+      // 6. 组装结构
+      content.appendChild(title);
+      content.appendChild(topImg2);
+      container.appendChild(topImg1);
+      container.appendChild(content);
+
+      // 7. 插入到页面中
+      document.getElementById('app').appendChild(container);
+    })()
+    var setHtmlFontSize = () => {
+      var htmlDom = document.getElementsByTagName('html')[0]
+      var htmlWidth = document.documentElement.clientWidth || document.body.clientWidth
+
+      const html = window.document.documentElement;
+      // 设备可视区域宽度
+      const deviceWidth = html.getBoundingClientRect().width;
+      // 设计图宽度
+      const designWidth = 750;
+      // 1rem代表的大小
+      const initFontSize = 100;
+
+      html.style.fontSize = (deviceWidth / designWidth) * initFontSize + "px";
+    }
+    window.onresize = setHtmlFontSize
+    setHtmlFontSize()
+  </script>
+</body>
+
+</html>

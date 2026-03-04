@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>About Kerala</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+      html {
+        height: 100%;
+      }
+      body {
+        height: 100%;
+        font-size: 16px;
+      }
+      table,
+      tr,
+      td,
+      th,
+      thead,
+      tbody {
+        position: static;
+      }
+
+      .page-about {
+        display: none;
+        /* min-height: 100%; */
+        height: 28.16rem;
+        background-image: url('./images/about-bg.png');
+        background-size: 100% 29.92rem;
+        background-position: bottom center;
+        padding-top: 0.35rem;
+        box-sizing: border-box;
+        position: relative;
+      }
+      .about-title {
+        text-align: center;
+        font-size: 0.5rem;
+        line-height: 0.72rem;
+        color: #ffffff;
+        text-shadow: -0.04rem 0 rgb(255, 214, 38);
+        margin-bottom: 0.4rem;
+      }
+      .about-amount {
+        text-align: center;
+        margin-bottom: 1.32rem;
+      }
+      .about-amount .amount-num {
+        font-size: 0.5rem;
+        line-height: 0.74rem;
+        color: #fe3344;
+        font-weight: bold;
+        margin-bottom: 0.08rem;
+      }
+      .about-amount .amount-text {
+        /* width: 1.06rem; */
+        max-width: 20%;
+        padding-left: 0.1rem;
+        padding-right: 0.1rem;
+        height: 0.4rem;
+        margin: 0 auto;
+        color: #fe3344;
+        font-size: 0.28rem;
+        background-color: #ffe600;
+        border-radius: 0.06rem;
+      }
+      .about-content {
+        font-size: 0.23rem;
+        color: #757575;
+      }
+
+      .about-avatar {
+        height: 4.4rem;
+        margin-bottom: 0.3rem;
+      }
+
+      .about-content {
+        padding-left: 0.6rem;
+        padding-right: 0.52rem;
+        box-sizing: border-box;
+        margin-bottom: 0.58rem;
+        line-height: 0.34rem;
+      }
+      .about-content1 {
+        padding-top: 0.36rem;
+        padding-bottom: 0.28rem;
+        height: 4rem;
+      }
+      .about-content2 {
+        padding-top: 0.28rem;
+        height: 3rem;
+      }
+      .about-content3 {
+        padding-top: 0.28rem;
+        height: 3rem;
+      }
+      .about-content4 {
+        height: 4.6rem;
+        line-height: 0.32rem;
+        /* font-size: 0.22rem; */
+        padding-top: 0.1rem;
+        margin-bottom: 0.7rem;
+      }
+      .btn-play-now {
+        width: 80%;
+        height: 1.06rem;
+        margin: 0 auto;
+        text-align: center;
+        font-size: 0.32rem;
+        color: #fd2352;
+        line-height: 1.06rem;
+      }
+
+      .btn-more {
+        width: 1.34rem;
+        height: 0.46rem;
+        border-radius: 0.06rem 0 0 0.06rem;
+        background-color: #ffe600;
+        position: absolute;
+        right: 0;
+        top: 3.74rem;
+        font-size: 0.24rem;
+        color: #fe3344;
+        text-align: center;
+        line-height: 0.46rem;
+      }
+
+      .box--hi .about-content{
+        line-height: 0.38rem !important;
+        font-size: 0.24rem !important;
+      }
+    </style>
+    <script>
+      var setHtmlFontSize = () => {
+        var htmlDom = document.getElementsByTagName('html')[0]
+        var htmlWidth =
+          document.documentElement.clientWidth || document.body.clientWidth
+
+        const html = window.document.documentElement
+        // 设备可视区域宽度
+        const deviceWidth = html.getBoundingClientRect().width
+        // 设计图宽度
+        const designWidth = 750
+        // 1rem代表的大小
+        const initFontSize = 100
+
+        html.style.fontSize = (deviceWidth / designWidth) * initFontSize + 'px'
+      }
+      window.onresize = setHtmlFontSize
+      setHtmlFontSize()
+    </script>
+  </head>
+  <body>
+    <div class="page-about box--en">
+      <div class="about-title">
+        <div>The Total Revenue</div>
+        <div>From Lottery Sales</div>
+      </div>
+      <div class="about-amount">
+        <div class="amount-num">₹61330</div>
+        <div class="amount-text">Crores</div>
+      </div>
+
+      <div class="about-avatar">
+        <div class="row-avatar"></div>
+      </div>
+
+      <div class="about-content about-content1">
+        Kerala,the Gods own country,added another first to itscap in 1967,when a
+        lottery department was setup forthe first time in India. The right idea
+        came from the thenFinance Minister of Kerala,the late Shri. P. K.
+        KunjuSahib,who envisaged revenue from sale of lotteries as amajor source
+        of non-tax revenue for the state,at thesame time providing a stable
+        income source for thepoor and the common. Within no time,the
+        departmentnas arown throughout the enath and breadth of Keralaby
+        contributing to the needful.
+      </div>
+      <div class="about-content about-content2">
+        It had the late Shri. P K. Seydu Mohammed as its firstDirector,in fact
+        its founder Director. The departmentwhich came into existence on
+        September 1.1967.released its first lottery ticket on November 1,the
+        samevear. The ticket valued at Re. 1 carried first prize moneyof Rs.
+        50,000. The first draw took place after more than60 days i.e.,on January
+        26.
+      </div>
+      <div class="about-content about-content3">
+        With its humble beginning,the department was to set anexample for the
+        entire country. Soon many other statesjumped into the bandwagon by
+        starting their ownlotteries. However,Kerala State Lotteries remains
+        atopall of them,thanks to its credibility,transparency andreliability
+        and its effective measures for agents' welfare.Starting with just one
+        lottery.
+      </div>
+      <div class="about-content about-content4">
+        The department now rolls out seven weekly lotteries viz.Pratheeksha,
+        Dhanasree,Win-Win, Akshaya, Bhagyanidhi, Karunya and Pournami lotteries
+        and sixbumper lotteries. The department,which started with afew
+        personnel,now has around 465 employees under itsDirectorate located at
+        Vikas Bhavan atThiruvananthapuram,14 District Offices and a
+        RegionaDeputy Directorate at Ernakulam. More over three Taluk_ottery
+        Offices are also functioning one each at Punalurin Kollam
+        District,Kattappana in ldukki District andThamarassery in Kozhikkode
+        District. The departmentwhich was initially under the Department of
+        Finance waslater brought under the Taxes Department.
+      </div>
+
+      <div class="btn-play-now">Play Now</div>
+
+      <div class="btn-more">More --></div>
+    </div>
+    <div class="page-about box--hi">
+      <div class="about-title">
+        <div>कुल राजस्व</div>
+        <div>लॉटरी की बिक्री से</div>
+      </div>
+      <div class="about-amount">
+        <div class="amount-num">₹61330</div>
+        <div class="amount-text">करोड़ रुपए</div>
+      </div>
+
+      <div class="about-avatar">
+        <div class="row-avatar"></div>
+      </div>
+
+      <div class="about-content about-content1">
+        भगवान के अपने देश केरल ने 1967 में अपनी सूची में पहली बार एक और जोड़ा था।
+        लॉटरी विभाग भारत में पहली बार स्थापित किया गया था। सही विचार
+        यह केरल के तत्कालीन वित्त मंत्री, स्वर्गीय श्री श्री. पी.के.
+        कुंजुसाहिब, जिन्होंने लॉटरी की बिक्री से राजस्व को एक प्रमुख स्रोत के रूप में परिकल्पित किया
+        राज्य के लिए गैर-कर राजस्व की वृद्धि, एक ही समय में एक स्थिर प्रदान करना
+        गरीबों और आम लोगों के लिए आय का स्रोत। कुछ ही समय में,
+        केरल के ई-नथ और कोने-कोने में फैले विभागों की खेती
+        आवश्यक कार्यों में योगदान देना।
+      </div>
+      <div class="about-content about-content2">
+        इसमें स्वर्गीय श्री थे। पी. के. सेदू मोहम्मद इसके पहले निदेशक के रूप में, वास्तव में
+        इसके संस्थापक निदेशक। वह विभाग जो कब अस्तित्व में आया?
+        1 सितंबर, 1967 को अपना पहला लॉटरी टिकट जारी किया।
+        बहुत बढ़िया। 1 रुपये मूल्य के टिकट पर 1000 रुपये की प्रथम पुरस्कार राशि थी।
+        पहला ड्रॉ 60 दिनों से अधिक समय के बाद यानी जनवरी में हुआ था।
+        26.
+      </div>
+      <div class="about-content about-content3">
+        अपनी विनम्र शुरुआत के साथ, विभाग को लोगों के लिए एक उदाहरण स्थापित करना था
+        पूरा देश। जल्द ही कई अन्य राज्य भी इस सूची में शामिल हो गए।
+        अपनी खुद की लॉटरी शुरू करें। हालांकि, केरल राज्य लॉटरी बनी हुई है
+        उनमें से सबसे ऊपर, इसकी विश्वसनीयता, पारदर्शिता और विश्वसनीयता के लिए धन्यवाद।
+        और एजेंटों के कल्याण के लिए इसके प्रभावी उपाय। सिर्फ एक से शुरू करें
+        लॉटरी।
+      </div>
+      <div class="about-content about-content4">
+        विभाग अब सात साप्ताहिक लॉटरी शुरू करता है। प्रतीक्षा,
+        धनश्री, विन-विन, अक्षय, भाग्यनिधि, करूण्य और पौर्णमी लॉटरी
+        और छह बम्पर लॉटरी। विभाग, जो कुछ के साथ शुरू हुआ
+        कार्मिक, अब अपने निदेशालय के तहत लगभग 465 कर्मचारी हैं।
+        तिरुवनंतपुरम में विकास भवन, 14 जिला कार्यालय और एक
+        एर्नाकुलम में क्षेत्रीय उप निदेशालय। तीन Taluk_ottery से अधिक
+        कोल्लम के पुनालुरिन में भी एक-एक कार्यालय काम कर रहे हैं।
+        जिला, लडुक्की जिले में कट्टप्पना और कोझीकोड में थामारासेरी
+        जिला। वह विभाग जो प्रारंभ में किस विभाग के अधीन था?
+        वित्त को बाद में कर विभाग के अधीन लाया गया।
+      </div>
+
+      <div class="btn-play-now">अभी खेलो</div>
+
+      <div class="btn-more">अधिक --></div>
+    </div>
+  </body>
+</html>
+<script src="./js/GDBridge.js"></script>
+
+<script>
+  function getAppLanguage() {
+    var appLanguage = null
+    try {
+      appLanguage = window.GLJsBridge.getLanguage()
+    } catch (error) {
+      appLanguage = 'en'
+    }
+
+    switch (appLanguage) {
+      case 'bi':
+        return 'en'
+
+      case 'pt':
+        return 'en'
+
+      case 'en':
+        return 'en'
+
+      case 'hi':
+        return 'hi'
+
+      default:
+        return 'en'
+    }
+  }
+
+  function showEnEle() {
+    var enEle = document.querySelector('.box--en')
+    enEle.style.display = 'block'
+  }
+
+  function showHiEle() {
+    var hiEle = document.querySelector('.box--hi')
+    hiEle.style.display = 'block'
+  }
+
+  function showPtEle() {
+    var ptEle = document.querySelector('.box--pt')
+    ptEle.style.display = 'block'
+  }
+
+  function showIdEle() {
+    var idEle = document.querySelector('.box--bi')
+    idEle.style.display = 'block'
+  }
+  var visibilityMotor = {
+    en: showEnEle,
+    hi: showHiEle,
+    pt: showPtEle,
+    bi: showIdEle
+  }
+
+  visibilityMotor[getAppLanguage()]()
+
+  let btn_more = document.querySelector('.box--en .btn-more')
+  let btn_play_now = document.querySelector('.box--en .btn-play-now')
+
+  let btn_more1 = document.querySelector('.box--hi .btn-more')
+  let btn_play_now1 = document.querySelector('.box--hi .btn-play-now')
+
+  btn_more.onclick = function () {
+    window.location.href = './about-more.html'
+  }
+  btn_play_now.onclick = function () {
+    if(GDBridge.isApp()){
+      GDBridge.closePage()
+    }else{
+      window.history.go(-1)
+    }
+  }
+
+  btn_more1.onclick = function () {
+    window.location.href = './about-more.html'
+  }
+  btn_play_now1.onclick = function () {
+    if(GDBridge.isApp()){
+      GDBridge.closePage()
+    }else{
+      window.history.go(-1)
+    }
+  }
+
+</script>

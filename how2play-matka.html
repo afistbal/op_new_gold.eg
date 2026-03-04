@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to play?</title>
+  <style>
+
+    * {
+      padding: 0;
+      margin: 0;
+      -webkit-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+    html{
+      height: 100%;
+    }
+    body{
+      height: 100%;
+      font-size: 16px;
+    }
+    table,
+    tr,
+    td,
+    th,
+    thead,
+    tbody {
+      position: static;
+    }
+    .page-how2play{
+      /* min-height: 100%; */
+      height: 46.9rem;
+      background-image: url("./images/how2play.jpg");
+      background-size: 7.5rem 46.9rem;
+      background-position: bottom center;
+      padding-top: 0.35rem;
+      box-sizing: border-box;
+      position: relative;
+    }
+  </style>
+  <script>
+    var setHtmlFontSize = () => {
+      var htmlDom = document.getElementsByTagName('html')[0]
+      var htmlWidth = document.documentElement.clientWidth || document.body.clientWidth
+
+      const html = window.document.documentElement;
+      // 设备可视区域宽度
+      const deviceWidth = html.getBoundingClientRect().width;
+      // 设计图宽度
+      const designWidth = 750;
+      // 1rem代表的大小
+      const initFontSize = 100;
+
+      html.style.fontSize = (deviceWidth / designWidth) * initFontSize + "px";
+    }
+    window.onresize = setHtmlFontSize
+    setHtmlFontSize()
+  </script>
+</head>
+<body>
+  <div class="page-how2play">
+    
+  </div>
+</body>
+</html>
