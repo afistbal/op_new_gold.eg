@@ -1,0 +1,21 @@
+{
+  "name": "op-new-build",
+  "version": "1.0.0",
+  "description": "Build scripts for compressing static files in op_new and op_new.dev",
+  "main": "build-op-new.js",
+  "scripts": {
+    "build:dev": "node build-op-new.js dev",
+    "build:prod": "node build-op-new.js prod",
+    "build:all": "node build-op-new.js all"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "csso": "^5.0.5",
+    "fs-extra": "^11.3.3",
+    "glob": "^13.0.6",
+    "html-minifier-terser": "^7.2.0",
+    "terser": "^5.46.0"
+  }
+}
