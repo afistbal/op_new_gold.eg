@@ -107,7 +107,7 @@ body::-webkit-scrollbar {
 
 .user-message .content-time,
 .kf-message .content-time {
-    padding-left: 10px;
+    padding-inline-start: 10px;
     text-align: right;
 }
 
@@ -135,13 +135,15 @@ body::-webkit-scrollbar {
 }
 
 .user-message .info {
+    /* 默认（非镜像）右对齐，rtl 下会在下方覆盖为 flex-start */
     align-items: flex-end;
-    margin-right: 10px;
+    margin-inline-end: 10px;
 }
 
 .kf-message .info {
+    /* 默认（非镜像）左对齐，rtl 下会在下方覆盖为 flex-end */
     align-items: flex-start;
-    margin-left: 10px;
+    margin-inline-start: 10px;
 }
 
 
@@ -166,6 +168,7 @@ body::-webkit-scrollbar {
     max-width: calc(100vw - 110px);
 }
 
+
 .kf-message .content {
     background-color: #2F3547;
     color: #E8E8E8;
@@ -181,6 +184,23 @@ body::-webkit-scrollbar {
     word-break: break-word;
     /* 同上，控制客服气泡最大宽度 */
     max-width: calc(100vw - 110px);
+}
+
+
+/* 阿语 / EG 镜像：确保用户气泡在 mirror-mode 下的圆角与宽度样式 */
+.mirror-mode .user-message .content {
+    border-top-left-radius: 0px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+/* 阿语 / EG 镜像：确保用户气泡在 mirror-mode 下的圆角与宽度样式 */
+.mirror-mode .kf-message .content {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
 }
 
 .content-error {
@@ -200,6 +220,16 @@ body::-webkit-scrollbar {
 .kf-message .content-error {
     right: -0.52rem;
     display: none;
+}
+
+.mirror-mode .kf-message .content-error {
+    left: -0.52rem;
+    right: auto;
+}
+
+.mirror-mode .user-message .content-error {
+    right: -0.52rem;
+    left: auto;
 }
 
 .avatar {
@@ -243,6 +273,8 @@ body::-webkit-scrollbar {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding: 10px;
 }
+
+
 
 .input-wrapper {
     display: flex;

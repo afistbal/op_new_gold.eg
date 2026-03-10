@@ -443,32 +443,6 @@
         }
       });
 
-      function getMockRows() {
-        return [
-          {
-            status: '1',
-            cash: '₹500.00',
-            payment: 'UPI',
-            modifyTime: '2026-03-10 12:00:00',
-            orderId: 'WD202603100001'
-          },
-          {
-            status: '0',
-            cash: '₹250.00',
-            payment: 'Bank Transfer',
-            modifyTime: '2026-03-10 11:30:00',
-            orderId: 'WD202603100002'
-          },
-          {
-            status: '2',
-            cash: '₹100.00',
-            payment: 'UPI',
-            modifyTime: '2026-03-09 20:15:00',
-            orderId: 'WD202603090003'
-          }
-        ];
-      }
-
       function loadPage(p, append) {
         if (loading || stopSearch) return;
         loading = true;
@@ -483,11 +457,7 @@
         }).then(function (res) {
           loading = false;
           loadingEl.style.display = 'none';
-          let rows = (res && res.data && res.data.rows) || [];
-          // 本地 file:// 调试时接口不通 / 无数据，造几条假数据方便联调样式
-          if ((!rows || !rows.length) && p === 1 && window.location.protocol === 'file:') {
-            rows = getMockRows();
-          }
+          var rows = (res && res.data && res.data.rows) || [];
           if (!rows.length) {
             if (p === 1) {
               noDataEl.textContent = t('noData');

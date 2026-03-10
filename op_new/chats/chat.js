@@ -31,6 +31,11 @@
     }
 
     function getLang() {
+        // 优先使用全局镜像语言，保证与其它页面一致
+        if (window.EGMirror && typeof window.EGMirror.detectLang === 'function') {
+            const l = window.EGMirror.detectLang();
+            if (l) return l;
+        }
         if (window.GLJsBridge && typeof window.GLJsBridge.getLanguage === 'function') {
             try {
                 const appLang = window.GLJsBridge.getLanguage();
@@ -50,6 +55,42 @@
             if (stored) return stored;
         } catch (e) {}
         return 'en';
+    }
+
+    const CHAT_I18N = {
+        en: {
+            placeholder: 'Please enter your question',
+            send: 'Send',
+            loadHistory: 'Load History',
+            allLoaded: 'All loaded'
+        },
+        hi: {
+            placeholder: 'कृपया अपना प्रश्न दर्ज करें',
+            send: 'भेजें',
+            loadHistory: 'इतिहास लोड करें',
+            allLoaded: 'सभी लोड हो गए'
+        },
+        ar: {
+            placeholder: 'يرجى إدخال سؤالك',
+            send: 'إرسال',
+            loadHistory: 'تحميل السجل',
+            allLoaded: 'تم تحميل الكل'
+        }
+    };
+
+    function applyChatI18n() {
+        const lang = getLang();
+        const pack = CHAT_I18N[lang] || CHAT_I18N.en;
+        try {
+            const input = document.getElementById('messageInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const loadHistoryBtn = document.getElementById('loadHistoryBtn');
+            const allLoadedEl = document.getElementById('allLoaded');
+            if (input && pack.placeholder) input.placeholder = pack.placeholder;
+            if (sendBtn && pack.send) sendBtn.textContent = pack.send;
+            if (loadHistoryBtn && pack.loadHistory) loadHistoryBtn.textContent = pack.loadHistory;
+            if (allLoadedEl && pack.allLoaded) allLoadedEl.textContent = pack.allLoaded;
+        } catch (e) {}
     }
 
     function saveTokenAndLang() {
@@ -137,6 +178,7 @@
         messageTimeout: 5000,
 
         init() {
+            applyChatI18n();
             this.bindEvents();
             this.resizeInput();
             this.connect();
@@ -521,7 +563,7 @@
             .then(res => res.json())
             .then(res => {
                 this.isHistoryLoading = false;
-                document.getElementById('loadHistoryBtn').textContent = 'Load History';
+                applyChatI18n();
                 document.getElementById('historyBtn').style.display = 'none';
 
                 if (res.code === 200 && res.data && res.data.rows) {
@@ -561,7 +603,7 @@
             })
             .catch(err => {
                 this.isHistoryLoading = false;
-                document.getElementById('loadHistoryBtn').textContent = 'Load History';
+                applyChatI18n();
                 try { document.getElementById('historyBtn').style.display = ''; } catch (e) {}
                 console.error('Load history failed:', err);
             });

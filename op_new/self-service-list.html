@@ -396,7 +396,8 @@
             block.onclick = function () {
               if (window.GLJsBridge && GDBridge && GDBridge.isApp && GDBridge.isApp()) {
                 var base = (window.location.origin || '').replace(/\/$/, '');
-                var id = v.issueId || v.issue_id || '';
+                // 后端某些环境只返回 id，这里多兜一个 v.id
+                var id = v.issueId || v.issue_id || v.id || '';
                 var st = v.status !== undefined && v.status !== null ? v.status : '';
                 var hash = '/#/selfServiceDetail?title=Issue%20Detail&issueId=' + encodeURIComponent(id) + '&status=' + encodeURIComponent(st);
                 var token = getToken();
@@ -426,7 +427,8 @@
       }
 
       function openDetail(v) {
-        var id = v.issueId || v.issue_id || '';
+        // 与上面保持一致，优先 issueId/issue_id，再兜底 id
+        var id = v.issueId || v.issue_id || v.id || '';
         var st = v.status !== undefined && v.status !== null ? v.status : '';
         var query = 'issueId=' + encodeURIComponent(id) + '&status=' + encodeURIComponent(st);
         var lang = getLang();
