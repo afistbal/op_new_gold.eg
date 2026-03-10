@@ -126,13 +126,8 @@
     // 开发环境请求日志（线上构建时通过压缩配置移除 console）
     if (typeof console !== 'undefined' && typeof console.log === 'function') {
       try {
-        var logData = {};
-        for (var key in data) {
-          if (Object.prototype.hasOwnProperty.call(data, key)) {
-            logData[key] = key === 'authorization' ? '***' : data[key];
-          }
-        }
-        console.log('[EncryptedRequest] POST', urlRoot, logData);
+        // 这里直接输出完整 data（包括 authorization），方便你本地排查
+        console.log('[EncryptedRequest] POST', urlRoot, data);
       } catch (e) {}
     }
 

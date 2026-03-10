@@ -301,25 +301,7 @@
     }
 
     function getLang() {
-      if (window.GLJsBridge && typeof window.GLJsBridge.getLanguage === 'function') {
-        try {
-          const appLang = window.GLJsBridge.getLanguage();
-          if (appLang && appLang !== 'x') {
-            const lang = (appLang || 'en').toLowerCase();
-            if (['en', 'hi', 'ar'].includes(lang)) return lang;
-          }
-        } catch (e) {}
-      }
-      const urlLang = getUrlParam('lang');
-      if (urlLang) {
-        const lang = urlLang.toLowerCase();
-        if (['en', 'hi', 'ar'].includes(lang)) return lang;
-      }
-      try {
-        const stored = localStorage.getItem('op_lang');
-        if (stored) return stored;
-      } catch (e) {}
-      return 'en';
+      return (window.EGMirror && window.EGMirror.detectLang()) || 'en';
     }
 
     function getToken() {

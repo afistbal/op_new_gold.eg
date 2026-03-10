@@ -144,14 +144,21 @@
       color: #F6DA9A;
       font-weight: 500;
     }
-    .item-style .coins {
-      color: #F6DA9A;
-      font-weight: 500;
-    }
     .item-style .copy-wrap {
       display: flex;
       align-items: center;
       gap: 0.1rem;
+      min-width: 0;
+    }
+    .item-style.order-row span:first-child {
+      flex-shrink: 0;
+    }
+    .item-style.order-row .copy-wrap {
+      justify-content: flex-end;
+      flex: 1;
+    }
+    .item-style.order-row span {
+      margin-bottom: 0;
     }
     .item-style .copy-btn {
       width: 0.28rem;
@@ -167,7 +174,7 @@
       align-items: center;
       justify-content: center;
       padding: 0.15rem 0;
-      margin-top: 0.1rem;
+      margin-top: 0.24rem;
       background: linear-gradient(90deg, #F6DA9A 0%, #DCB364 100%);
       border-radius: 0.08rem;
       font-size: 0.24rem;
@@ -263,7 +270,6 @@
         title: 'Deposit History',
         deposit: 'Deposit',
         amount: 'Recharge Amount',
-        coinsReceived: 'Coins Received',
         type: 'Type',
         time: 'Time',
         orderNumber: 'Order Number',
@@ -276,7 +282,6 @@
         title: 'जमा इतिहास',
         deposit: 'जमा',
         amount: 'रीचार्ज राशि',
-        coinsReceived: 'प्राप्त सिक्के',
         type: 'प्रकार',
         time: 'समय',
         orderNumber: 'ऑर्डर नंबर',
@@ -289,7 +294,6 @@
         title: 'سجل الإيداع',
         deposit: 'إيداع',
         amount: 'مبلغ الشحن',
-        coinsReceived: 'العملات المستلمة',
         type: 'النوع',
         time: 'الوقت',
         orderNumber: 'رقم الطلب',
@@ -378,13 +382,6 @@
     (function () {
       if (window.EGMirror && typeof window.EGMirror.applyMirror === 'function') {
         window.EGMirror.applyMirror();
-      } else {
-        var lang = (new URLSearchParams(window.location.search || '')).get('lang') || '';
-        if (lang.toLowerCase().split('-')[0] === 'ar') {
-          document.documentElement.setAttribute('dir', 'rtl');
-          document.documentElement.setAttribute('lang', 'ar');
-          if (document.body) document.body.classList.add('mirror-mode');
-        }
       }
 
       let page = 1;
@@ -419,10 +416,6 @@
             '<div class="item-style">' +
             '  <span>' + t('amount') + '</span>' +
             '  <span class="money">' + (item.cash || '') + '</span>' +
-            '</div>' +
-            '<div class="item-style">' +
-            '  <span>' + t('coinsReceived') + '</span>' +
-            '  <span class="coins">' + (item.coins || item.coin || item.coinNum || "") + '</span>' +
             '</div>' +
             '<div class="item-style">' +
             '  <span>' + t('type') + '</span>' +

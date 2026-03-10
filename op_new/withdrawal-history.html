@@ -32,6 +32,7 @@
   <script src="./js/md5.min.js"></script>
   <script src="./js/requestEncrypt.js"></script>
   <script src="./js/encryptedRequest.js"></script>
+  <script src="./js/mirror-lang.js"></script>
   <style>
     * { padding: 0; margin: 0; box-sizing: border-box; }
     body,
@@ -130,7 +131,7 @@
     }
     .item-style span img {
       width: 0.28rem;
-      margin-left: 0.05rem;
+      margin-inline-start: 0.05rem;
     }
     .item-style .money {
       color: #F6DA9A;
@@ -170,6 +171,12 @@
       margin: 0.4rem 0;
       color: #6F7A8C;
     }
+    html[dir="rtl"] body,
+    html[dir="rtl"] .container-wallet-recharge-history,
+    html[dir="rtl"] .wapper,
+    html[dir="rtl"] .histroy-item,
+    html[dir="rtl"] .item-style { direction: rtl; }
+
     .toast {
       position: fixed;
       left: 50%;
@@ -217,25 +224,7 @@
       return urlParams.get(name) || '';
     }
     function getLang() {
-      if (window.GLJsBridge && typeof window.GLJsBridge.getLanguage === 'function') {
-        try {
-          const appLang = window.GLJsBridge.getLanguage();
-          if (appLang && appLang !== 'x') {
-            const lang = (appLang || 'en').toLowerCase();
-            if (['en', 'hi', 'ar'].includes(lang)) return lang;
-          }
-        } catch (e) {}
-      }
-      const urlLang = getUrlParam('lang');
-      if (urlLang) {
-        const lang = urlLang.toLowerCase();
-        if (['en', 'hi', 'ar'].includes(lang)) return lang;
-      }
-      try {
-        const stored = localStorage.getItem('op_lang');
-        if (stored) return stored;
-      } catch (e) {}
-      return 'en';
+      return (window.EGMirror && window.EGMirror.detectLang()) || 'en';
     }
     function getToken() {
       if (window.GLJsBridge && typeof window.GLJsBridge.getToken === 'function') {
@@ -454,6 +443,32 @@
         }
       });
 
+      function getMockRows() {
+        return [
+          {
+            status: '1',
+            cash: '₹500.00',
+            payment: 'UPI',
+            modifyTime: '2026-03-10 12:00:00',
+            orderId: 'WD202603100001'
+          },
+          {
+            status: '0',
+            cash: '₹250.00',
+            payment: 'Bank Transfer',
+            modifyTime: '2026-03-10 11:30:00',
+            orderId: 'WD202603100002'
+          },
+          {
+            status: '2',
+            cash: '₹100.00',
+            payment: 'UPI',
+            modifyTime: '2026-03-09 20:15:00',
+            orderId: 'WD202603090003'
+          }
+        ];
+      }
+
       function loadPage(p, append) {
         if (loading || stopSearch) return;
         loading = true;
@@ -468,7 +483,11 @@
         }).then(function (res) {
           loading = false;
           loadingEl.style.display = 'none';
-          const rows = (res && res.data && res.data.rows) || [];
+          let rows = (res && res.data && res.data.rows) || [];
+          // 本地 file:// 调试时接口不通 / 无数据，造几条假数据方便联调样式
+          if ((!rows || !rows.length) && p === 1 && window.location.protocol === 'file:') {
+            rows = getMockRows();
+          }
           if (!rows.length) {
             if (p === 1) {
               noDataEl.textContent = t('noData');
@@ -499,6 +518,9 @@
       });
 
       document.addEventListener('DOMContentLoaded', function () {
+        if (window.EGMirror && typeof window.EGMirror.applyMirror === 'function') {
+          window.EGMirror.applyMirror();
+        }
         loadPage(1, false);
       });
     })();

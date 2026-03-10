@@ -18,36 +18,49 @@
     return code
   }
 
-  // 统一的语言检测：优先原生 -> URL ?lang= -> 默认 ar
-  // 并把 eg 归一为 ar；只有明确传了 en 时才用英文（不镜像）
+  // 统一语言检测（与 self-service 等页一致）：App > URL ?lang= > localStorage op_lang > 默认 ar
+  // 有 App 或 URL 时回写 localStorage，保证各页打开时“一个语言就足够”
   function detectLang() {
-    var appLanguage = null
+    var resolved = null
+    var source = null
+
     try {
       if (window.GLJsBridge && typeof window.GLJsBridge.getLanguage === 'function') {
-        appLanguage = window.GLJsBridge.getLanguage()
+        var appLang = window.GLJsBridge.getLanguage()
+        if (appLang && String(appLang).trim() && String(appLang).toLowerCase() !== 'x') {
+          resolved = normalizeLang(appLang)
+          source = 'app'
+        }
       }
-    } catch (e) {
-      // ignore
+    } catch (e) { /* ignore */ }
+
+    if (!resolved) {
+      var urlLang = getUrlParam('lang')
+      if (urlLang) {
+        resolved = normalizeLang(urlLang)
+        source = 'url'
+      }
     }
 
-    if (!appLanguage) {
-      var lang = getUrlParam('lang')
-      // 没有任何来源的语言时，默认阿语（走镜像）
-      appLanguage = lang || 'ar'
+    if (!resolved) {
+      try {
+        var stored = localStorage.getItem('op_lang')
+        if (stored) resolved = normalizeLang(stored)
+      } catch (e) { /* ignore */ }
     }
 
-    appLanguage = normalizeLang(appLanguage)
+    if (!resolved) resolved = 'ar'
 
-    switch (appLanguage) {
-      case 'en':
-        // 只有明确传了英文，才用英文（关闭镜像）
-        return 'en'
-      case 'ar':
-      case 'eg':
-      default:
-        // 其余全部按阿语处理（含 hi/zh 等），都走镜像
-        return 'ar'
+    // 只认 en / hi / ar，其余（含 eg）归一为 ar
+    if (resolved !== 'en' && resolved !== 'hi' && resolved !== 'ar') resolved = 'ar'
+
+    if (source === 'app' || source === 'url') {
+      try {
+        localStorage.setItem('op_lang', resolved)
+      } catch (e) { /* ignore */ }
     }
+
+    return resolved
   }
 
   // 应用 dir 与镜像样式，返回最终 langCode
@@ -57,11 +70,11 @@
 
     if (html) {
       html.setAttribute('lang', langCode)
-      if (langCode === 'ar') {
-        html.setAttribute('dir', 'rtl')
-      } else {
-        html.setAttribute('dir', 'ltr')
-      }
+    if (langCode === 'ar') {
+      html.setAttribute('dir', 'rtl')
+    } else {
+      html.setAttribute('dir', 'ltr')
+    }
     }
 
     if (typeof document !== 'undefined' && document.body) {

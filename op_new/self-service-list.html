@@ -303,13 +303,6 @@
     (function () {
       if (window.EGMirror && typeof window.EGMirror.applyMirror === 'function') {
         window.EGMirror.applyMirror();
-      } else {
-        var lang = (new URLSearchParams(window.location.search || '')).get('lang') || '';
-        if (lang.toLowerCase().split('-')[0] === 'ar') {
-          document.documentElement.setAttribute('dir', 'rtl');
-          document.documentElement.setAttribute('lang', 'ar');
-          if (document.body) document.body.classList.add('mirror-mode');
-        }
       }
       saveTokenAndLang();
       let tabActive = parseInt(getUrlParam('tab') || '0', 10);

@@ -33,6 +33,7 @@
   <script src="./js/md5.min.js"></script>
   <script src="./js/requestEncrypt.js"></script>
   <script src="./js/encryptedRequest.js"></script>
+  <script src="./js/mirror-lang.js"></script>
   <style>
     * { padding: 0; margin: 0; box-sizing: border-box; }
     .van-ellipsis {
@@ -58,6 +59,11 @@
     }
     body::-webkit-scrollbar { display: none; width: 0; }
     html { -webkit-font-smoothing: antialiased !important; -webkit-text-size-adjust: 100%; }
+
+    html[dir="rtl"] body,
+    html[dir="rtl"] .container-not-receive,
+    html[dir="rtl"] .not-receive,
+    html[dir="rtl"] .receive-item { direction: rtl; }
 
     .container-not-receive {
       min-height: 100vh;
@@ -381,15 +387,15 @@
         </div>
       </div>
       <div class="receive-item">
-        <div class="title-content" id="utrLabel">Utr Number</div>
+        <div class="title-content" id="myAccountLabel">Payment Account</div>
         <div class="input-content">
-          <input type="text" id="utrNumber" maxlength="12" placeholder="please enter UTR">
+          <input type="text" id="myAccount" maxlength="50" placeholder="Please enter payment account">
         </div>
       </div>
       <div class="receive-item">
-        <div class="title-pdf" id="upiLabel">Receiver UPI ID</div>
+        <div class="title-content" id="receiptAccountLabel">Receiving Account</div>
         <div class="input-content">
-          <input type="text" id="upiId" maxlength="12" placeholder="Please input UPI ID">
+          <input type="text" id="receiptAccount" maxlength="50" placeholder="Please enter receiving account">
         </div>
       </div>
       <div class="receive-item">
@@ -436,35 +442,29 @@
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get(name) || '';
     }
-    function getLang() {
-      if (window.GLJsBridge && typeof window.GLJsBridge.getLanguage === 'function') {
-        try {
-          const appLang = window.GLJsBridge.getLanguage();
-          if (appLang && appLang !== 'x') {
-            const lang = (appLang || 'en').toLowerCase();
-            if (['en', 'hi', 'ar'].includes(lang)) return lang;
-          }
-        } catch (e) {}
-      }
-      const urlLang = getUrlParam('lang');
-      if (urlLang) {
-        const lang = urlLang.toLowerCase();
-        if (['en', 'hi', 'ar'].includes(lang)) return lang;
-      }
-      try {
-        const stored = localStorage.getItem('op_lang');
-        if (stored) return stored;
-      } catch (e) {}
-      return 'en';
-    }
     function getToken() {
+      // 1）优先 App 提供的 token
       if (window.GLJsBridge && typeof window.GLJsBridge.getToken === 'function') {
         try {
           const t = window.GLJsBridge.getToken();
-          if (t && t !== 'x') return t;
+          if (t && t !== 'x') {
+            try { localStorage.setItem('op_token', String(t)); } catch (e) {}
+            return String(t);
+          }
         } catch (e) {}
       }
-      return getUrlParam('token') || '';
+      // 2）其后看 URL 上是否带 ?token=
+      const urlToken = getUrlParam('token');
+      if (urlToken) {
+        try { localStorage.setItem('op_token', String(urlToken)); } catch (e) {}
+        return String(urlToken);
+      }
+      // 3）最后兜底读取 localStorage 里之前保存的 token
+      try {
+        const stored = localStorage.getItem('op_token');
+        if (stored) return stored;
+      } catch (e) {}
+      return '';
     }
 
     const I18N = {
@@ -472,16 +472,16 @@
         dnr: 'Deposit Not Receive',
         orderAmount: 'Order Amount',
         orderNumber: 'Order Number',
-        un: 'Utr Number',
-        rupi: 'Receiver UPI ID',
+        paymentAccount: 'Payment Account',
+        receivingAccount: 'Receiving Account',
         dprd: 'Deposit proof receipt detail(pictures only support jpg/jpeg/png/webp)',
         cdpe: 'Click to check the Deposit Proof Example',
         upload: 'Upload',
         confirm: 'Confirm',
         confirmDisabled: 'Confirm',
-        inputUpiId: 'Please input UPI ID',
+        pleaseEntermyAccount: 'Please enter payment account',
+        pleaseEnterReceiptAccount: 'Please enter receiving account',
         pleaseEC: 'Please enter content',
-        peUtr: 'please enter UTR',
         pidp: 'Please input Deposit Proof',
         osjpwf: 'only supports JPG/PNG/WEBP format',
         fileTooLarge: 'File size cannot exceed 5MB',
@@ -493,16 +493,16 @@
         dnr: 'जमा प्राप्त नहीं हुआ',
         orderAmount: 'ऑर्डर राशि',
         orderNumber: 'ऑर्डर नंबर',
-        un: 'UTR नंबर',
-        rupi: 'प्राप्तकर्ता UPI आईडी',
+        paymentAccount: 'भुगतान खाता',
+        receivingAccount: 'प्राप्ति खाता',
         dprd: 'जमा प्रमाण रसीद विवरण (चित्र केवल jpg/jpeg/png/webp प्रारूप में समर्थित हैं)',
         cdpe: 'जमा प्रमाण उदाहरण देखने के लिए क्लिक करें',
         upload: 'अपलोड करें',
         confirm: 'पुष्टि करें',
         confirmDisabled: 'पुष्टि करें',
-        inputUpiId: 'कृपया UPI ID दर्ज करें',
+        pleaseEntermyAccount: 'कृपया भुगतान खाता दर्ज करें',
+        pleaseEnterReceiptAccount: 'कृपया प्राप्ति खाता दर्ज करें',
         pleaseEC: 'कृपया सामग्री दर्ज करें',
-        peUtr: 'कृपया UTR दर्ज करें',
         pidp: 'कृपया जमा प्रमाण दर्ज करें',
         osjpwf: 'केवल JPG/PNG/WEBP प्रारूप समर्थित',
         fileTooLarge: 'फ़ाइल का आकार 5MB से अधिक नहीं हो सकता',
@@ -514,16 +514,16 @@
         dnr: 'الإيداع لم يُستلم',
         orderAmount: 'مبلغ الطلب',
         orderNumber: 'رقم الطلب',
-        un: 'رقم UTR',
-        rupi: 'معرف UPI للمستلم',
+        paymentAccount: 'حساب الدفع',
+        receivingAccount: 'حساب الاستلام',
         dprd: 'تفاصيل إيصال الإيداع (jpg/jpeg/png/webp فقط)',
         cdpe: 'انقر للتحقق من مثال إثبات الإيداع',
         upload: 'رفع',
         confirm: 'تأكيد',
         confirmDisabled: 'تأكيد',
-        inputUpiId: 'يرجى إدخال معرف UPI',
+        pleaseEntermyAccount: 'يرجى إدخال حساب الدفع',
+        pleaseEnterReceiptAccount: 'يرجى إدخال حساب الاستلام',
         pleaseEC: 'يرجى إدخال المحتوى',
-        peUtr: 'يرجى إدخال UTR',
         pidp: 'يرجى إدخال إثبات الإيداع',
         osjpwf: 'يدعم فقط JPG/PNG/WEBP',
         fileTooLarge: 'لا يمكن أن يتجاوز حجم الملف 5 ميجابايت',
@@ -534,7 +534,7 @@
     };
 
     function t(key) {
-      const lang = getLang();
+      const lang = (window.EGMirror && window.EGMirror.detectLang()) || 'en';
       const pack = I18N[lang] || I18N.en;
       return pack[key] || I18N.en[key] || '';
     }
@@ -542,15 +542,16 @@
     function applyI18n() {
       document.getElementById('orderAmountLabel').textContent = t('orderAmount');
       document.getElementById('orderNumberLabel').textContent = t('orderNumber');
-      document.getElementById('utrLabel').textContent = t('un');
-      document.getElementById('upiLabel').textContent = t('rupi');
+      document.getElementById('myAccountLabel').textContent = t('paymentAccount');
+      document.getElementById('receiptAccountLabel').textContent = t('receivingAccount');
       document.getElementById('dprdLabel').textContent = t('dprd');
       document.getElementById('uploadTipsText').textContent = t('cdpe');
       document.getElementById('uploadText').textContent = t('upload');
       document.getElementById('confirmBtn').textContent = t('confirm');
       document.getElementById('orderAmount').placeholder = t('pleaseEC');
       document.getElementById('orderNumber').placeholder = t('orderNumber');
-      document.getElementById('upiId').placeholder = t('inputUpiId');
+      document.getElementById('myAccount').placeholder = t('pleaseEntermyAccount');
+      document.getElementById('receiptAccount').placeholder = t('pleaseEnterReceiptAccount');
     }
 
     function showToast(message) {
@@ -582,7 +583,7 @@
     function requestWithToken(path, body) {
       return EncryptedRequest.post(path, body || {}, {
         getToken: getToken,
-        getLang: getLang
+        getLang: function () { return (window.EGMirror && window.EGMirror.detectLang()) || 'en'; }
       });
     }
 
@@ -810,10 +811,14 @@
 
       confirmBtn.addEventListener('click', function () {
         if (confirmBtn.classList.contains('disabled')) return;
-        const utrNumber = document.getElementById('utrNumber').value.trim();
-        const upiId = document.getElementById('upiId').value.trim();
-        if (!utrNumber) {
-          showToast(t('peUtr'));
+        const myAccount = document.getElementById('myAccount').value.trim();
+        const receiptAccount = document.getElementById('receiptAccount').value.trim();
+        if (!myAccount) {
+          showToast(t('pleaseEntermyAccount'));
+          return;
+        }
+        if (!receiptAccount) {
+          showToast(t('pleaseEnterReceiptAccount'));
           return;
         }
         if (!depositProof) {
@@ -822,12 +827,13 @@
         }
         const orderNumber = document.getElementById('orderNumber').value.trim();
         const jsonStr = JSON.stringify({
-          isCompress: '0',
+          isCompress: '1',
           type: 1,
-          upi_id: upiId,
           order_id: orderNumber,
-          utr_id: utrNumber,
-          deposit_proof: depositProof
+          my_account: myAccount,
+          receipt_account: receiptAccount,
+          // 与 Vue 端保持一致：后端期望数组形式
+          deposit_proof: Array.isArray(depositProof) ? depositProof : [depositProof]
         });
         const payload = {
           title: 'Deposit Not Receive',
@@ -865,11 +871,11 @@
       // 初始化输入描边状态（包括 URL / session 带过来的字段）
       updateInputBorderState(orderAmountInput);
       updateInputBorderState(orderNumberInput);
-      updateInputBorderState(document.getElementById('utrNumber'));
-      updateInputBorderState(document.getElementById('upiId'));
+      updateInputBorderState(document.getElementById('myAccount'));
+      updateInputBorderState(document.getElementById('receiptAccount'));
 
       // 可编辑输入框在输入时实时更新描边
-      ['utrNumber', 'upiId'].forEach(function (id) {
+      ['myAccount', 'receiptAccount'].forEach(function (id) {
         var input = document.getElementById(id);
         if (!input) return;
         input.addEventListener('input', function () {
@@ -881,6 +887,9 @@
       });
 
       document.addEventListener('DOMContentLoaded', function () {
+        if (window.EGMirror && typeof window.EGMirror.applyMirror === 'function') {
+          window.EGMirror.applyMirror();
+        }
         applyI18n();
         document.title = t('dnr') || 'Deposit Not Receive';
         var params = new URLSearchParams(window.location.search);
