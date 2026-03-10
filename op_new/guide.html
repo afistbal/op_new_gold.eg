@@ -5,40 +5,46 @@
     <meta charset="UTF-8" />
     <title>Beginner Guide</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="./images/icon.png" />
     <style>
+        /* ===== 全局基础（黑金版，EG 保留 RTL/镜像逻辑） ===== */
         body {
-            font-family: Arial, sans-serif;
-            background: #f7f8ff;
+            font-family: "Roboto", "Inter", Arial, sans-serif;
+            background: #1A1D2DFF;
             margin: 0;
             padding: 12px;
+            color: #BAC2D2FF;
         }
 
         .container-beginner-guide {
-            max-width: 800px;
+            max-width: 400px;
             margin: 0 auto;
         }
 
-        .beginner-guide>div {
-            background: #f7f8ff;
-            /* padding: 15px; */
-            margin-bottom: 20px;
-            font-size: 12px;
-
-            /* border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); */
+        /* 每一块引导内容卡片 */
+        .beginner-guide > div {
+            background: #2F3547;
+            margin-bottom: 16px;
+            padding: 12px 10px;
+            font-size: 14px;
+            border-radius: 8px;
         }
 
+        /* 图片占满可用宽度 */
         .beginner-guide img {
+            width: 100%;
             max-width: 100%;
             display: block;
             margin-bottom: 10px;
+            border-radius: 6px;
         }
 
+        /* 文本：浅色、行距稍大 */
         .beginner-guide p {
-            margin: 5px 0;
-            color: #768096;
-            line-height: 1.4;
+            margin: 4px 0;
+            color: #BAC2D2FF;
+            line-height: 1.5;
         }
-        
     </style>
 </head>
 
@@ -82,8 +88,8 @@
         }
         /* ---------------------------
          * 你的 getAppLanguage()（稍作增强）
-         * 优先原生 -> URL ?lang= -> 默认 en
-         * 白名单：en, hi（可自行扩展）
+         * 优先原生 -> URL ?lang= -> 默认 ar（EG）
+         * 白名单：en, hi, ar（可扩展）
          * ------------------------- */
         function getAppLanguage() {
             var appLanguage = null;

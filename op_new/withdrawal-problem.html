@@ -4,21 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Withdrawal Problem</title>
+    <link rel="icon" type="image/png" href="./images/icon.png">
     <!-- 引入 Vant 样式 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@2/lib/index.css">
     <style>
         body {
-            background-color: #f7f8ff;
             margin: 0;
-            font-family: 'Helvetica Neue', Helvetica, Segoe UI, Arial, Roboto, 'PingFang SC', miui, 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+            font-family: "Roboto", "Inter", -apple-system, BlinkMacSystemFont,
+                "Helvetica Neue", Helvetica, Segoe UI, Arial, "PingFang SC", miui,
+                "Hiragino Sans GB", "Microsoft Yahei", sans-serif;
+            background-color: #1A1D2DFF;
+            color: #BAC2D2FF;
         }
 
         textarea::placeholder {
             color: #888;
-            /* 灰色 */
             font-size: 13px;
             font-weight: 500;
-            /* 字体大小 */
             font-family: 'Helvetica Neue', Helvetica, Segoe UI, Arial, Roboto, 'PingFang SC', miui, 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
         }
 
@@ -27,28 +29,45 @@
         }
 
         .problem-title {
-            background-color: #fff;
+            background-color: #1A1D2DFF;
+            color: #FFFFFF;
             text-align: center;
             padding: 12px 0;
             position: fixed;
             top: 0;
             width: 100%;
+            max-width: 425px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            z-index: 10;
         }
 
         .container {
-            margin: 60px 10px 10px;
+            margin: 60px 10px 16px;
+            max-width: 425px;
+            margin-inline: auto;
+        }
 
+        .order-number {
+            font-size: 13px;
+            margin-bottom: 12px;
+            padding: 12px 12px 10px;
+            background-color: #2F3547;
+            border-radius: 0.16rem;
+            box-shadow: 0 0.08rem 0.32rem rgba(0, 0, 0, 0.6);
         }
 
         .container .order-number .order-number-title {
-            color: #c8c9cc;
-            margin: 12px 0;
+            color: #8F9AB3;
+            margin: 4px 0 8px;
             font-size: 13px;
         }
 
         .container .order-number .order-number-pdf {
-            margin: 12px 0;
+            margin: 4px 0 8px;
             font-size: 13px;
+            color: #8F9AB3;
         }
 
         .container .order-number .order-number-pdf::after {
@@ -65,13 +84,41 @@
         #orderNumber,
         .container .order-number .order-input {
             width: 100%;
-            padding: 12px;
+            padding: 10px 16px;
             outline: none;
-            border: none;
+            border-radius: 0.12rem;
+            border: 1px solid transparent;
             font-size: 13px;
-            color: #888;
-            border-radius: 3px;
-            box-shadow: 1px 1px 10px 1px rgba(0, 0, 0, 0.1);
+            line-height: 1.5;
+            color: #FFFFFF;
+            background-color: #4C4F65;
+            box-shadow: none;
+        }
+
+        .container .order-number textarea.order-input {
+            min-height: 96px;
+            resize: none;
+        }
+
+        .container .order-number .order-input::placeholder,
+        textarea::placeholder {
+            color: #c8c9cc;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: "Roboto", "Inter", -apple-system, BlinkMacSystemFont,
+                "Helvetica Neue", Helvetica, Segoe UI, Arial, "PingFang SC", miui,
+                "Hiragino Sans GB", "Microsoft Yahei", sans-serif;
+        }
+
+        .container .order-number .order-input:disabled {
+            color: rgba(248, 200, 124, 0.4);
+            background-color: #3A3E52;
+            border: 1px solid rgba(248, 200, 124, 0.4);
+        }
+
+        #desc.has-value {
+            color: #F8C87C;
+            border-color: #F8C87C;
         }
 
         #pdfInput {
@@ -81,20 +128,63 @@
         #uploadPdf {
             width: 120px;
             height: 120px;
-            box-shadow: 1px 1px 10px 1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0.01rem 0.01rem 0.1rem 0.01rem rgba(0, 0, 0, 0.4);
+            border-radius: 0.12rem;
+            margin-top: 0.05rem;
+            background-color: #2F3547;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        #uploadPdf #uploadNo {
+            width: 100%;
+            height: 100%;
+            color: #c8c9cc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            border-radius: 0.12rem;
+            background-color: #4C4F65;
+        }
+
+        #uploadPdf #uploadYes {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-radius: 0.12rem;
+            overflow: hidden;
+        }
+
+        #uploadPdf #uploadYes #uploadPDFImg {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        #uploadPdf #loading {
+            display: none;
+        }
+
+        #uploadPdf #uploadImg {
+            width: 34px;
+            height: 34px;
+            cursor: pointer;
         }
 
         .progress-container {
             width: 100%;
-            border: 1px solid #ccc;
+            border: 1px solid rgba(255,255,255,0.1);
             margin-top: 10px;
             border-radius: 20px;
         }
 
         #progress {
-            /* width: 0;
-            height: 20px;
-            background: green; */
             height: 20px;
             width: 0;
             line-height: 20px;
@@ -103,85 +193,32 @@
             font-size: 12px;
             font-weight: bold;
             border-radius: 20px;
-            /* background: linear-gradient(90deg, #4facfe, #00f2fe); */
-            background: linear-gradient(90deg, #f8786b, #fe736e);
-            box-shadow: 0 2px 10px rgba(0, 200, 255, 0.4);
+            background: linear-gradient(90deg, #F6DA9A 0%, #DCB364 100%);
             transition: width 0.5s ease-in-out;
         }
 
         #progressText {
-            /* color: green; */
             color: white;
-
-        }
-
-        #uploadPdf {
-            background-color: #ffffff;
-        }
-
-        #uploadPdf #uploadNo {
-            width: 120px;
-            height: 120px;
-            color: #c8c9cc;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            border-radius: 3px;
-            background-color: #ffffff;
-            /* display: none; */
-        }
-
-        #uploadPdf #uploadYes {
-            display: none;
-        }
-
-        #uploadPdf #loading {
-
-            display: none;
-        }
-
-        #uploadPdf #loading .rotate-img {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #uploadPdf #loading .rotate-img img {
-            width: 30px;
-            height: 30px;
-        }
-
-        #uploadPdf #uploadYes #uploadPDFImg {
-            width: 100%;
-            height: 100%;
-        }
-
-        #uploadPdf #uploadImg {
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-
         }
 
         .tips {
             font-size: 13px;
             margin: 12px 0;
+            color: #BAC2D2FF;
         }
 
         #confirm {
-            border-radius: 100px;
-            color: #ffffff;
-            font-size: 15px;
-            padding: 10px 0;
-            margin: 100px 14px;
+            border-radius: 8px;
+            color: #653E26;
+            font-size: 17px;
+            padding: 11px 0;
+            margin: 24px 4px 8px;
             text-align: center;
-            background: linear-gradient(90deg, #f8786b, #fe736e);
+            background: linear-gradient(90deg, #F6DA9A 0%, #DCB364 100%);
+            cursor: pointer;
         }
 
-        /* 镜像效果 */
+        /* ===== EG 独有：镜像效果（RTL 时水平翻转） ===== */
         .mirrored {
             transform: scaleX(-1);
         }

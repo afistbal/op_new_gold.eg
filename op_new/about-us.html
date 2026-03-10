@@ -6,13 +6,16 @@
   <title>About Us</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+  <link rel="icon" type="image/png" href="./images/icon.png">
+  <script src="./js/mirror-lang.js"></script>
+
   <style>
     /* ===== 基础 ===== */
     body {
       margin: 0;
       padding: 0;
       font-family: "Roboto", "Inter", sans-serif;
-      background-color: #f7f8ff;
+      background-color: #1A1D2DFF;
       color: #333;
     }
 
@@ -20,7 +23,7 @@
       height: 100vh;
       padding-bottom: 1px;
       overflow-y: auto;
-      background-color: #f7f8ff;
+      background-color: #1A1D2DFF;
     }
 
     /* ===== 顶部导航（若不要，可删掉整个 .top-nav 块） ===== */
@@ -75,11 +78,13 @@
       justify-content: space-between;
       align-items: center;
       /* margin: 12px; */
-      padding: 28px 12px;
-      border-bottom: 1px #eeeff2 solid;
+      padding: 18px 12px;
+      margin: 10px;
       font-size: 14px;
       text-decoration: none;
-      color: inherit;
+      color: #BAC2D2FF;
+      background: #2F3547;
+      border-radius: 8px 8px 8px 8px;
     }
 
     .agreement .item-left {
@@ -89,7 +94,7 @@
 
     .agreement .item-left img {
       width: 30px;
-      margin-right: 10px;
+      margin-inline-end: 10px;
     }
 
     .agreement .item-right {
@@ -160,6 +165,24 @@
         margin-top: -25px;
       }
     }
+
+    /* RTL 布局（阿语 / EG 时）：文本从右到左，箭头仍在右侧但方向反转 */
+    html[dir="rtl"] body {
+      direction: rtl;
+    }
+
+    html[dir="rtl"] .top-nav {
+      flex-direction: row-reverse;
+    }
+
+    html[dir="rtl"] .top-nav .back {
+      padding: 10px 10px 10px 0;
+    }
+
+    /* 列表整体顺序不变，仅调整箭头方向 */
+    html[dir="rtl"] .agreement .item-right img {
+      transform: scaleX(-1);
+    }
   </style>
 </head>
 
@@ -183,14 +206,14 @@
     <!-- ===== 主内容 ===== -->
     <div class="content">
       <!-- 顶部大图 -->
-      <img class="back-img" src="./images/account/about_us.png?v=1.1.0" alt="About us banner" />
+      <img class="back-img" src="./images/account/banner_about@2x.webp" alt="About us banner" />
 
       <div class="agreement">
         <!-- item 1 -->
         <a class="item-box" href="confidentiality-agreement.html">
           <div class="item-left">
-            <img src="./images/account/icon_deposithist@2x.png?v=1.1.0" alt="" />
-            <span>Confidentiality Agreement</span>
+            <img src="./images/account/icon_agreement1@2x.webp" alt="" />
+            <span data-i18n="confidentiality">Confidentiality Agreement</span>
           </div>
           <div class="item-right">
             <img class="back-img" src="./images/icon_back_right@2x.png?v=1.1.0" alt="" />
@@ -200,8 +223,8 @@
         <!-- item 2 -->
         <a class="item-box" href="risk-agreement.html">
           <div class="item-left">
-            <img src="./images/account/icon_risk@2x.png?v=1.1.0" alt="" />
-            <span>Risk Disclosure Agreement</span>
+            <img src="./images/account/icon_agreement2@2x.webp" alt="" />
+            <span data-i18n="risk">Risk Disclosure Agreement</span>
           </div>
           <div class="item-right">
             <img class="back-img" src="./images/icon_back_right@2x.png?v=1.1.0" alt="" />
@@ -212,7 +235,6 @@
   </div>
 
   <script>
-
     /* -------------------------------------------------
      * 返回上一级（含 fallback）
      * - 有浏览历史：history.back()
@@ -226,11 +248,58 @@
         window.location.href = "index.html";
       }
     }
+
     (function init() {
-      if (window.GLJsBridge) {
-        window.GLJsBridge.setToolbarVisibility("0"); // 原生容器提供
+      try {
+        if (window.GLJsBridge && typeof window.GLJsBridge.setToolbarVisibility === "function") {
+          window.GLJsBridge.setToolbarVisibility("0"); // 原生容器提供
+        }
+      } catch (error) {
+        // 忽略
       }
-    })()
+
+      // 使用公共 mirror-lang.js 统一处理 lang/dir/mirror-mode
+      var langCode = "en";
+      if (window.EGMirror && typeof window.EGMirror.applyMirror === "function") {
+        langCode = window.EGMirror.applyMirror() || "en";
+      }
+
+      // 文案多语言（英文 + 阿语）
+      var texts = {
+        en: {
+          title: "About Us",
+          confidentiality: "Confidentiality Agreement",
+          risk: "Risk Disclosure Agreement",
+        },
+        ar: {
+          title: "حول التطبيق",
+          confidentiality: "اتفاقية السرية",
+          risk: "اتفاقية الكشف عن المخاطر",
+        },
+      };
+
+      var pack = texts[langCode] || texts.en;
+
+      // 更新页面标题
+      if (pack.title) {
+        document.title = pack.title;
+      }
+
+      // 如果以后打开顶部导航，也同步标题
+      var aboutTitle = document.getElementById("about-title");
+      if (aboutTitle && pack.title) {
+        aboutTitle.textContent = pack.title;
+      }
+
+      // 更新列表中的文案
+      var nodes = document.querySelectorAll("[data-i18n]");
+      nodes.forEach(function (el) {
+        var key = el.getAttribute("data-i18n");
+        if (!key) return;
+        var t = (pack && pack[key]) || (texts.en && texts.en[key]);
+        if (t) el.textContent = t;
+      });
+    })();
   </script>
 </body>
 
