@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0,width=device-width,viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <title>Self-service Status</title>
+  <link rel="icon" type="image/png" href="./images/icon.png">
+  <link rel="stylesheet" href="./css/touch-scroll.css">
+  <script>
+    function IsPhone() {
+      var info = navigator.userAgent;
+      return /mobile/i.test(info);
+    }
+    function setHtmlFontSize() {
+      var html = document.getElementsByTagName('html')[0];
+      var deviceWidth = document.documentElement.getBoundingClientRect().width;
+      var designWidth = 750;
+      var initFontSize = 100;
+      if (IsPhone()) {
+        html.style.fontSize = (deviceWidth / designWidth) * initFontSize + 'px';
+      } else {
+        html.style.fontSize = '54px';
+      }
+    }
+    window.onresize = setHtmlFontSize;
+    setHtmlFontSize();
+  </script>
+  <script src="./js/env.js"></script>
+  <script src="./js/mirror-lang.js"></script>
+  <script src="./js/crypto-js.min.js"></script>
+  <script src="./js/md5.min.js"></script>
+  <script src="./js/requestEncrypt.js"></script>
+  <script src="./js/encryptedRequest.js"></script>
+  <style>
+    * { padding: 0; margin: 0; box-sizing: border-box; }
+    body, html {
+      font-size: 0.28rem;
+      font-family: "Roboto", "Inter", -apple-system, BlinkMacSystemFont,
+        "Helvetica Neue", Helvetica, Segoe UI, Arial, "PingFang SC", miui,
+        "Hiragino Sans GB", "Microsoft Yahei", sans-serif;
+      max-width: 425px;
+      margin: 0 auto;
+      background-color: #1A1D2DFF;
+      color: #BAC2D2FF;
+    }
+    body {
+      overflow-x: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    body::-webkit-scrollbar { display: none; width: 0; }
+    html { -webkit-font-smoothing: antialiased !important; -webkit-text-size-adjust: 100%; }
+
+    .page-self-list {
+      background-color: #1A1D2DFF;
+      min-height: 100vh;
+      padding: 0.24rem 0.2rem 0.28rem 0.2rem;
+      box-sizing: border-box;
+    }
+
+    /* H5 顶部自定义导航已移除，使用 App 或浏览器自带头部 */
+
+    .tabs-list {
+      margin: 0.06rem 0 0.24rem;
+    }
+    .tabs-header {
+      display: flex;
+      position: relative;
+      padding: 0.1rem;
+      border-radius: 0.16rem;
+      border: 1px solid #31384E;
+      background-color: #1A1D2DFF;
+    }
+    .tabs-header .tab-item {
+      flex: 1;
+      text-align: center;
+      border-radius: 0.2rem;
+      color: #BAC2D2FF;
+      font-size: 0.27rem;
+      height: 0.64rem;
+      line-height: 0.64rem;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tabs-header .tab-item.active {
+      background: linear-gradient(180deg, #F5C87F 0%, #E7B25F 100%);
+      color: #653E26FF;
+      font-weight: 600;
+    }
+    .van-tabs__line {
+      display: none;
+    }
+
+    .record-list { padding-bottom: 0.4rem; }
+    .list-block {
+      background: #2F3547;
+      box-shadow: 0 0.08rem 0.32rem rgba(0, 0, 0, 0.6);
+      border-radius: 0.16rem;
+      padding: 0.24rem 0.22rem 0.22rem 0.22rem;
+      margin-bottom: 0.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 0.01rem solid #31384E;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .list-block .title {
+      font-size: 0.30rem;
+      font-weight: 600;
+      margin-bottom: 0.12rem;
+      color: #FFFFFF;
+    }
+    .list-block .time {
+      font-size: 0.24rem;
+      color: #BAC2D2FF;
+    }
+    .list-block .status {
+      font-size: 0.24rem;
+      flex-shrink: 0;
+      margin-inline-start: 0.2rem;
+    }
+
+    /* 阿语 / EG 镜像：RTL */
+    html[dir="rtl"] body,
+    html[dir="rtl"] .page-self-list,
+    html[dir="rtl"] .tabs-header,
+    html[dir="rtl"] .list-block { direction: rtl; }
+    .list-block .status.Pending { color: #7BA8F4FF; }
+    .list-block .status.Processing { color: #F6DA9A; }
+    .list-block .status.Processed { color: #18b660; }
+
+    .no-data, .no-more {
+      text-align: center;
+      font-size: 0.28rem;
+      margin: 0.4rem 0;
+      color: #6F7A8C;
+    }
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      padding: 0.2rem 0.4rem;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      border-radius: 0.16rem;
+      font-size: 0.24rem;
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .toast.show { opacity: 1; visibility: visible; }
+
+    /* 仅在触摸设备上启用"橡皮筋"式弹性滚动效果 */
+    @media (hover: none) and (pointer: coarse) {
+      body {
+        overscroll-behavior-y: auto;
+        overscroll-behavior-x: none;
+        -webkit-overflow-scrolling: touch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-self-list">
+    <div class="tabs-list">
+      <div class="tabs-header">
+        <div class="van-tabs__line" id="tabsLine"></div>
+        <div class="tab-item active" data-tab="0" id="tab0">Pending</div>
+        <div class="tab-item" data-tab="1" id="tab1">Processing</div>
+        <div class="tab-item" data-tab="2" id="tab2">Processed</div>
+      </div>
+    </div>
+    <div class="record-list" id="recordList"></div>
+    <div class="no-data" id="noData" style="display:none;"></div>
+    <div class="no-more" id="noMore" style="display:none;"></div>
+  </div>
+
+  <script src="./js/GDBridge.js"></script>
+  <script>
+    function getUrlParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name) || '';
+    }
+    function getLang() {
+      if (window.GLJsBridge && typeof window.GLJsBridge.getLanguage === 'function') {
+        try {
+          const appLang = window.GLJsBridge.getLanguage();
+          if (appLang && appLang !== 'x') {
+            const lang = (appLang || 'en').toLowerCase();
+            if (['en', 'hi', 'ar'].includes(lang)) return lang;
+          }
+        } catch (e) {}
+      }
+      const urlLang = getUrlParam('lang');
+      if (urlLang) {
+        const lang = urlLang.toLowerCase();
+        if (['en', 'hi', 'ar'].includes(lang)) return lang;
+      }
+      try {
+        const stored = localStorage.getItem('op_lang');
+        if (stored) return stored;
+      } catch (e) {}
+      return 'en';
+    }
+    function getToken() {
+      if (window.GLJsBridge && typeof window.GLJsBridge.getToken === 'function') {
+        try {
+          const t = window.GLJsBridge.getToken();
+          if (t && t !== 'x') return t;
+        } catch (e) {}
+      }
+      return getUrlParam('token') || '';
+    }
+    function saveTokenAndLang() {
+      const token = getToken();
+      const lang = getUrlParam('lang') || (window.GLJsBridge && typeof window.GLJsBridge.getLanguage === 'function' ? (window.GLJsBridge.getLanguage() || 'en') : 'en');
+      try {
+        if (token) localStorage.setItem('op_token', token);
+        if (lang) localStorage.setItem('op_lang', lang);
+      } catch (e) {}
+    }
+
+    const I18N = {
+      en: {
+        listTitle: 'Self-service Status',
+        pnd: 'Pending',
+        prc: 'Processing',
+        prd: 'Processed',
+        finishedText: 'All data loaded',
+        noData: 'No data'
+      },
+      hi: {
+        listTitle: 'स्व-सेवा स्थिति',
+        pnd: 'लंबित',
+        prc: 'प्रसंस्करण में',
+        prd: 'प्रसंस्कृत',
+        finishedText: 'सभी डेटा लोड',
+        noData: 'कोई डेटा नहीं'
+      },
+      ar: {
+        listTitle: 'حالة الخدمة الذاتية',
+        pnd: 'قيد الانتظار',
+        prc: 'قيد المعالجة',
+        prd: 'تمت المعالجة',
+        finishedText: 'تم تحميل جميع البيانات',
+        noData: 'لا توجد بيانات'
+      }
+    };
+    function t(key) {
+      const lang = getLang();
+      return (I18N[lang] || I18N.en)[key] || (I18N.en[key] || '');
+    }
+
+    function getApiBaseUrl() {
+      if (window.envConfig && envConfig.base_url) return envConfig.base_url;
+      if (typeof base_url !== 'undefined' && base_url) return base_url;
+      return '';
+    }
+    function showToast(msg) {
+      var el = document.getElementById('toast');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'toast';
+        el.className = 'toast';
+        document.body.appendChild(el);
+      }
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(function () { el.classList.remove('show'); }, 2000);
+    }
+    function requestWithToken(path, body) {
+      return EncryptedRequest.post(path, body || {}, {
+        getToken: getToken,
+        getLang: getLang
+      });
+    }
+    function buildUrl(path, extra) {
+      const params = [];
+      const lang = getLang();
+      const token = getToken();
+      if (lang) params.push('lang=' + encodeURIComponent(lang));
+      if (token) params.push('token=' + encodeURIComponent(token));
+      if (extra) for (var k in extra) params.push(k + '=' + encodeURIComponent(extra[k]));
+      return path + (params.length ? '?' + params.join('&') : '');
+    }
+    function openPage(path, extra) {
+      const pathWithQuery = buildUrl(path, extra);
+      var url = pathWithQuery;
+      if (pathWithQuery.indexOf('http') !== 0) {
+        var base = window.location.href.replace(/[#?].*$/, '').replace(/[^/]+$/, '');
+        url = base + pathWithQuery;
+      }
+      // H5 下统一走浏览器跳转
+      window.location.href = url;
+    }
+
+    (function () {
+      if (window.EGMirror && typeof window.EGMirror.applyMirror === 'function') {
+        window.EGMirror.applyMirror();
+      } else {
+        var lang = (new URLSearchParams(window.location.search || '')).get('lang') || '';
+        if (lang.toLowerCase().split('-')[0] === 'ar') {
+          document.documentElement.setAttribute('dir', 'rtl');
+          document.documentElement.setAttribute('lang', 'ar');
+          if (document.body) document.body.classList.add('mirror-mode');
+        }
+      }
+      saveTokenAndLang();
+      let tabActive = parseInt(getUrlParam('tab') || '0', 10);
+      if (tabActive < 0 || tabActive > 2) tabActive = 0;
+      let page = 1;
+      const pageSize = 20;
+      let list = [];
+      let loading = false;
+      let finished = false;
+
+      const recordList = document.getElementById('recordList');
+      const loadingEl = document.getElementById('loading');
+      const noDataEl = document.getElementById('noData');
+      const noMoreEl = document.getElementById('noMore');
+
+      function applyI18n() {
+        // 顶部自绘导航已移除，仅更新标签文案和页面标题
+        var tab0 = document.getElementById('tab0');
+        var tab1 = document.getElementById('tab1');
+        var tab2 = document.getElementById('tab2');
+        if (tab0) tab0.textContent = t('pnd');
+        if (tab1) tab1.textContent = t('prc');
+        if (tab2) tab2.textContent = t('prd');
+        document.title = t('listTitle');
+      }
+      applyI18n();
+
+      function getStatusText(status) {
+        var s = Number(status);
+        if (s === 0) return t('pnd');
+        if (s === 1 || s === 3) return t('prc');
+        return t('prd');
+      }
+      function getStatusClass(status) {
+        var s = Number(status);
+        if (s === 0) return 'Pending';
+        if (s === 1 || s === 3) return 'Processing';
+        return 'Processed';
+      }
+
+      function setTabActive(idx) {
+        tabActive = idx;
+        document.querySelectorAll('.tab-item').forEach(function (el, i) {
+          el.classList.toggle('active', i === idx);
+        });
+        var line = document.getElementById('tabsLine');
+        if (line) {
+          var pct = ((idx + 0.5) / 3 * 100).toFixed(2);
+          line.style.left = pct + '%';
+          line.style.transform = 'translateX(-50%)';
+        }
+      }
+
+      function getIssueList(append) {
+        if (loading) return;
+        if (append && finished) return;
+        loading = true;
+        if (!append) {
+          list = [];
+          recordList.innerHTML = '';
+          finished = false;
+          noDataEl.style.display = 'none';
+          noMoreEl.style.display = 'none';
+        }
+
+        const para = {
+          pageNum: append ? page : 1,
+          pageSize: pageSize,
+          status: tabActive
+        };
+        requestWithToken('/user/issue/list', para).then(function (res) {
+          loading = false;
+          if (res.code !== 200 || !res.data) {
+            showToast(res.message || 'Request failed');
+            return;
+          }
+          var rows = res.data.rows || [];
+          var total = res.data.total || 0;
+          var pageNum = res.data.pageNum || 1;
+
+          page = pageNum + 1;
+          finished = list.length + rows.length >= total;
+          list = append ? list.concat(rows) : rows;
+
+          rows.forEach(function (v) {
+            var block = document.createElement('div');
+            block.className = 'list-block';
+            block.innerHTML =
+              '<div><div class="title">' + (v.title || '---') + '</div><div class="time">' + (v.createTime || '') + '</div></div>' +
+              '<div class="status ' + getStatusClass(v.status) + '">' + getStatusText(v.status) + '</div>';
+            block.onclick = function () {
+              if (window.GLJsBridge && GDBridge && GDBridge.isApp && GDBridge.isApp()) {
+                var base = (window.location.origin || '').replace(/\/$/, '');
+                var id = v.issueId || v.issue_id || '';
+                var st = v.status !== undefined && v.status !== null ? v.status : '';
+                var hash = '/#/selfServiceDetail?title=Issue%20Detail&issueId=' + encodeURIComponent(id) + '&status=' + encodeURIComponent(st);
+                var token = getToken();
+                var lang = getLang();
+                if (token) hash += '&token=' + encodeURIComponent(token);
+                if (lang) hash += '&lang=' + encodeURIComponent(lang);
+                try { GDBridge.jumpWebView(base + hash); } catch (e) { openDetail(v); }
+              } else {
+                openDetail(v);
+              }
+            };
+            recordList.appendChild(block);
+          });
+
+          if (list.length === 0) {
+            noDataEl.textContent = t('noData');
+            noDataEl.style.display = 'block';
+          }
+          if (finished && list.length > 0) {
+            noMoreEl.textContent = t('finishedText');
+            noMoreEl.style.display = 'block';
+          }
+        }).catch(function () {
+          loading = false;
+          showToast('Network error');
+        });
+      }
+
+      function openDetail(v) {
+        var id = v.issueId || v.issue_id || '';
+        var st = v.status !== undefined && v.status !== null ? v.status : '';
+        var query = 'issueId=' + encodeURIComponent(id) + '&status=' + encodeURIComponent(st);
+        var lang = getLang();
+        var token = getToken();
+        if (lang) query += '&lang=' + encodeURIComponent(lang);
+        if (token) query += '&token=' + encodeURIComponent(token);
+        var pathWithQuery = 'self-service-detail.html?' + query;
+        var url = pathWithQuery;
+        if (pathWithQuery.indexOf('http') !== 0) {
+          var base = window.location.href.replace(/[#?].*$/, '').replace(/[^/]+$/, '');
+          url = base + pathWithQuery;
+        }
+        try {
+          sessionStorage.setItem('op_detail_issueId', id);
+          sessionStorage.setItem('op_detail_status', String(st));
+        } catch (e) {}
+        // H5 下统一走浏览器跳转
+        window.location.href = url;
+      }
+
+      document.querySelectorAll('.tab-item').forEach(function (el, i) {
+        el.addEventListener('click', function () {
+          setTabActive(i);
+          getIssueList(false);
+        });
+      });
+
+      // 顶部导航由 App 或浏览器自身处理，这里不再自绘头部
+
+      var scrollEl = document.querySelector('.page-self-list');
+      function onScroll() {
+        if (loading || finished) return;
+        var el = scrollEl || document.documentElement;
+        var st = el.scrollTop || document.documentElement.scrollTop;
+        var sh = el.scrollHeight || document.documentElement.scrollHeight;
+        var ch = el.clientHeight || window.innerHeight;
+        if (st + ch >= sh - 50) getIssueList(true);
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+
+      setTabActive(tabActive);
+      getIssueList(false);
+    })();
+
+    (function init() {
+      if (window.GLJsBridge) {
+        window.GLJsBridge.setToolbarVisibility('0');
+      }
+    })();
+  </script>
+</body>
+</html>

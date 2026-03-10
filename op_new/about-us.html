@@ -259,9 +259,10 @@
       }
 
       // 使用公共 mirror-lang.js 统一处理 lang/dir/mirror-mode
-      var langCode = "en";
+      // 默认 ar（镜像），只有明确返回 en 才是英文
+      var langCode = "ar";
       if (window.EGMirror && typeof window.EGMirror.applyMirror === "function") {
-        langCode = window.EGMirror.applyMirror() || "en";
+        langCode = window.EGMirror.applyMirror() || "ar";
       }
 
       // 文案多语言（英文 + 阿语）

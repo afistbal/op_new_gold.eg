@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0,width=device-width,viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <title>Issue Detail</title>
+  <link rel="icon" type="image/png" href="./images/icon.png">
+  <link rel="stylesheet" href="./css/touch-scroll.css">
+  <script>
+    function IsPhone() {
+      var info = navigator.userAgent;
+      return /mobile/i.test(info);
+    }
+    function setHtmlFontSize() {
+      var html = document.getElementsByTagName('html')[0];
+      var deviceWidth = document.documentElement.getBoundingClientRect().width;
+      var designWidth = 750;
+      var initFontSize = 100;
+      if (IsPhone()) {
+        html.style.fontSize = (deviceWidth / designWidth) * initFontSize + 'px';
+      } else {
+        html.style.fontSize = '54px';
+      }
+    }
+    window.onresize = setHtmlFontSize;
+    setHtmlFontSize();
+  </script>
+  <script src="./js/env.js"></script>
+  <script src="./js/crypto-js.min.js"></script>
+  <script src="./js/md5.min.js"></script>
+  <script src="./js/requestEncrypt.js"></script>
+  <script src="./js/encryptedRequest.js"></script>
+  <style>
+    * { padding: 0; margin: 0; box-sizing: border-box; }
+    body, html {
+      font-size: 0.28rem;
+      font-family: "Roboto", "Inter", -apple-system, BlinkMacSystemFont,
+        "Helvetica Neue", Helvetica, Segoe UI, Arial, "PingFang SC", miui,
+        "Hiragino Sans GB", "Microsoft Yahei", sans-serif;
+      max-width: 425px;
+      margin: 0 auto;
+      background-color: #1A1D2DFF;
+      color: #BAC2D2FF;
+    }
+    body { overflow-x: hidden; }
+    html { -webkit-font-smoothing: antialiased !important; -webkit-text-size-adjust: 100%; }
+
+    .page-self-detail {
+      background-color: #1A1D2DFF;
+      min-height: 100vh;
+      padding: 0.24rem 0.2rem 1rem 0.2rem;
+      box-sizing: border-box;
+    }
+
+    .replay-info {
+      margin-bottom: 0.2rem;
+      background-color: #2F3547;
+      border-radius: 0.16rem;
+      padding: 0.22rem 0.2rem 0.18rem;
+      box-sizing: border-box;
+      box-shadow: 0 0.08rem 0.32rem rgba(0, 0, 0, 0.6);
+    }
+    .replay-info .info-detail { margin-bottom: 0.24rem; }
+    .replay-info .item-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.16rem;
+      font-size: 0.26rem;
+    }
+    .replay-info .item-info .label { color: #8F9AB3; }
+    .replay-info .item-info .value { color: #FFFFFF; }
+    .replay-info .image-content.previewable-wrap {
+      touch-action: manipulation;
+      display: block;
+      text-decoration: none;
+      color: inherit;
+    }
+    .replay-info .image-content {
+      background-color: #3A3E52;
+      min-height: 1rem;
+      cursor: pointer;
+      border-radius: 0.12rem;
+      overflow: hidden;
+    }
+    .replay-info .image-content .image {
+      max-width: 100%;
+      max-height: 3rem;
+      min-height: 1rem;
+      object-fit: contain;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      pointer-events: auto;
+    }
+
+    .row-replay {
+      margin-bottom: 0.32rem;
+      background: #2F3547;
+      padding: 0.22rem 0.2rem 0.18rem;
+      border-radius: 0.16rem;
+      box-shadow: 0 0.08rem 0.32rem rgba(0, 0, 0, 0.6);
+    }
+    .row-replay textarea {
+      width: 100%;
+      min-height: 1.2rem;
+      padding: 0.2rem;
+      border: none;
+      border-radius: 0.12rem;
+      font-size: 0.28rem;
+      resize: none;
+      font-family: inherit;
+      background: #4C4F65;
+      color: #FFFFFF;
+      line-height: 1.45;
+    }
+    .row-replay textarea::placeholder {
+      color: #A0A0A0;
+    }
+    .row-replay textarea:focus {
+      outline: none;
+      background: #5A5D75;
+      box-shadow: 0 0 0 2px #F6DA9A55;
+    }
+    .row-replay .upload-content { padding: 0.2rem 0; }
+    .row-replay .btn-upload {
+      width: 1.6rem;
+      height: 1.6rem;
+      border: 1px dashed #4C4F65;
+      border-radius: 0.12rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      color: #A0A0A0;
+      cursor: pointer;
+      background: #2F3547;
+    }
+    .row-replay .btn-upload img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .row-replay .btn-primary {
+      height: 0.84rem;
+      background: linear-gradient(90deg, #F6DA9A 0%, #DCB364 100%);
+      color: #653E26;
+      text-align: center;
+      line-height: 0.84rem;
+      border-radius: 0.08rem;
+      cursor: pointer;
+      margin-top: 0.2rem;
+      font-weight: 600;
+    }
+    .row-replay .btn-primary.disable {
+      pointer-events: none;
+      background: #4C4F65 !important;
+      color: #8F9AB3 !important;
+    }
+
+    .replay-content {
+      background-color: #2F3547;
+      padding: 0.2rem 0.24rem;
+      border-radius: 0.16rem;
+      box-shadow: 0 0.08rem 0.32rem rgba(0, 0, 0, 0.6);
+    }
+    .replay-item {
+      padding: 0.24rem 0;
+      border-bottom: 1px solid #eee;
+    }
+    .replay-item .user-info .name { font-size: 0.32rem; color: #FFFFFF; }
+    .replay-item .user-info .time { color: #8F9AB3; font-size: 0.24rem; line-height: 0.6rem; }
+    .replay-item .content {
+      min-height: 0.4rem;
+      line-height: 0.5rem;
+      color: #BAC2D2FF;
+      margin: 0.1rem 0;
+    }
+    .replay-item .image-item.previewable-wrap {
+      cursor: pointer;
+      display: inline-block;
+      touch-action: manipulation;
+      text-decoration: none;
+      color: inherit;
+    }
+    .replay-item .image-item img {
+      width: 1.6rem;
+      height: 1.6rem;
+      min-width: 1.6rem;
+      min-height: 1.6rem;
+      object-fit: cover;
+      margin: 0.1rem 0.1rem 0 0;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      pointer-events: auto;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      padding: 0.2rem 0.4rem;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      border-radius: 0.16rem;
+      font-size: 0.24rem;
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .toast.show { opacity: 1; visibility: visible; }
+    .show-loading {
+      display: flex;
+      justify-content: center;
+      padding: 0.4rem 0;
+    }
+    .loading-spinner {
+      width: 0.8rem;
+      height: 0.8rem;
+      border: 0.06rem solid rgba(246, 218, 154, 0.25);
+      border-top-color: #F6DA9A;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .image-preview-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 0.4rem;
+      box-sizing: border-box;
+    }
+    .image-preview-overlay.show {
+      display: flex;
+    }
+    .image-preview-overlay img {
+      max-width: 100%;
+      max-height: 90vh;
+      object-fit: contain;
+    }
+    .image-preview-close {
+      position: absolute;
+      top: 0.2rem;
+      right: 0.2rem;
+      width: 0.6rem;
+      height: 0.6rem;
+      background: rgba(0,0,0,0.6);
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 0.4rem;
+      cursor: pointer;
+      line-height: 0.6rem;
+      padding: 0;
+      text-align: center;
+    }
+
+    /* 仅在触摸设备上启用"橡皮筋"式弹性滚动效果 */
+    @media (hover: none) and (pointer: coarse) {
+      body {
+        overscroll-behavior-y: auto;
+        overscroll-behavior-x: none;
+        -webkit-overflow-scrolling: touch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="image-preview-overlay" id="imagePreviewOverlay">
+    <button class="image-preview-close" id="imagePreviewClose">&times;</button>
+    <img id="imagePreviewImg" src="" alt="">
+  </div>
+  <div class="page-self-detail">
+    <div id="replayInfo" class="replay-info" style="display:none;"></div>
+    <div id="rowReplay" class="row-replay" style="display:none;">
+      <textarea id="replyText" placeholder="Please fill in a problem description of more than 10 words so that we can provide better help" maxlength="500"></textarea>
+      <div class="upload-content">
+        <div class="btn-upload" id="uploadBtn">
+          <span id="uploadPlus">+</span>
+          <img id="uploadPreview" style="display:none;" alt="">
+        </div>
+      </div>
+      <div class="btn-primary" id="replyBtn">Reply</div>
+    </div>
+    <div id="replayContent" class="replay-content" style="display:none;"></div>
+    <div class="show-loading" id="loading" style="display:none;"><div class="loading-spinner"></div></div>
+  </div>
+
+  <script src="./js/GDBridge.js"></script>
+  <script>
+    function getUrlParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name) || '';
+    }
+    function getLang() {
+      if (window.GLJsBridge && typeof window.GLJsBridge.getLanguage === 'function') {
+        try {
+          const appLang = window.GLJsBridge.getLanguage();
+          if (appLang && appLang !== 'x') {
+            const lang = (appLang || 'en').toLowerCase();
+            if (['en', 'hi', 'ar'].includes(lang)) return lang;
+          }
+        } catch (e) {}
+      }
+      const urlLang = getUrlParam('lang');
+      if (urlLang) {
+        const lang = urlLang.toLowerCase();
+        if (['en', 'hi', 'ar'].includes(lang)) return lang;
+      }
+      try {
+        const stored = localStorage.getItem('op_lang');
+        if (stored) return stored;
+      } catch (e) {}
+      return 'en';
+    }
+    function getToken() {
+      if (window.GLJsBridge && typeof window.GLJsBridge.getToken === 'function') {
+        try {
+          const t = window.GLJsBridge.getToken();
+          if (t && t !== 'x') return t;
+        } catch (e) {}
+      }
+      return getUrlParam('token') || '';
+    }
+    function getEnv() {
+      var ua = navigator.userAgent || '';
+      if (ua.indexOf('Android') > -1 || ua.indexOf('Linux') > -1) return 'h5-Android';
+      if (ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)) return 'h5-iOS';
+      return 'h5-other';
+    }
+    function extractModel(ua) {
+      var m = (ua || '').match(/\((.*?)\)/);
+      return m ? m[1] : '';
+    }
+    function getCommonParams() {
+      var deviceKey = '';
+      try { deviceKey = localStorage.getItem('deviceKey') || ''; } catch (e) {}
+      var abbr = '';
+      try { abbr = localStorage.getItem('op_abbr') || ''; } catch (e) {}
+      return {
+        sysType: 'h5',
+        env: getEnv(),
+        timestamp: Math.round(Date.now() / 1000).toString(),
+        sysVersion: '1.1.0',
+        lang: getLang(),
+        deviceKey: 'h5_' + deviceKey,
+        model: extractModel(navigator.userAgent),
+        abbr: abbr,
+        appVersion: 'LuckyLottery',
+        appVersionCode: '1.0.1',
+        channelType: '1',
+        packageName: ''
+      };
+    }
+    function saveTokenAndLang() {
+      const token = getToken();
+      const lang = getUrlParam('lang') || (window.GLJsBridge && typeof window.GLJsBridge.getLanguage === 'function' ? (window.GLJsBridge.getLanguage() || 'en') : 'en');
+      try {
+        if (token) localStorage.setItem('op_token', token);
+        if (lang) localStorage.setItem('op_lang', lang);
+      } catch (e) {}
+    }
+
+    const I18N = {
+      en: {
+        title: 'Title', dnr: 'Deposit Not Receive', wp: 'Withdrawal Problem',
+        oid: 'Order Id', un: 'Utr Number', upin: 'Upi Number', time: 'Time',
+        r: 'Reply', s: 'Service', u: 'User'
+      },
+      hi: {
+        title: 'शीर्षक', dnr: 'जमा प्राप्त नहीं हुआ', wp: 'निकासी समस्या',
+        oid: 'ऑर्डर आईडी', un: 'यूटीआर नंबर', upin: 'यूपीआई नंबर', time: 'समय',
+        r: 'जवाब दें', s: 'सेवा', u: 'उपयोगकर्ता'
+      },
+      ar: {
+        title: 'العنوان', dnr: 'الإيداع لم يُستلم', wp: 'مشكلة السحب',
+        oid: 'معرف الطلب', un: 'رقم UTR', upin: 'رقم UPI', time: 'الوقت',
+        r: 'رد', s: 'خدمة', u: 'مستخدم'
+      }
+    };
+    function t(key) {
+      return (I18N[getLang()] || I18N.en)[key] || (I18N.en[key] || '');
+    }
+
+    function getApiBaseUrl() {
+      if (window.envConfig && envConfig.base_url) return envConfig.base_url;
+      if (typeof base_url !== 'undefined' && base_url) return base_url;
+      return '';
+    }
+    function showToast(msg) {
+      var el = document.getElementById('toast');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'toast';
+        el.className = 'toast';
+        document.body.appendChild(el);
+      }
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(function () { el.classList.remove('show'); }, 2000);
+    }
+    function requestWithToken(path, body) {
+      return EncryptedRequest.post(path, body || {}, {
+        getToken: getToken,
+        getLang: getLang
+      });
+    }
+
+    function fetchJudAuditVersion() {
+      EncryptedRequest.post('/user/gdUser/judAuditVersion', {}, {
+        getToken: getToken,
+        getLang: getLang
+      }).then(function (d) {
+        if (d.code === 200 && d.data) {
+          try {
+            if (d.data.kk) localStorage.setItem('deviceKey', d.data.kk);
+            if (d.data.abbr) localStorage.setItem('op_abbr', d.data.abbr);
+            if (d.data.lang && !getUrlParam('lang')) localStorage.setItem('op_lang', d.data.lang);
+          } catch (e) {}
+        }
+      }).catch(function () {});
+    }
+
+    (function () {
+      saveTokenAndLang();
+      fetchJudAuditVersion();
+      var issueId = getUrlParam('issueId');
+      var statusParam = getUrlParam('status');
+      if (!issueId) {
+        try { issueId = sessionStorage.getItem('op_detail_issueId') || ''; } catch (e) {}
+      }
+      var status = 0;
+      if (statusParam !== '' && statusParam !== null) {
+        status = parseInt(statusParam, 10) || 0;
+      } else {
+        try {
+          var st = sessionStorage.getItem('op_detail_status');
+          if (st !== null && st !== '') status = parseInt(st, 10) || 0;
+        } catch (e) {}
+      }
+      var listInfo = null;
+      var replyList = [];
+      var imgArr = [];
+
+      var replayInfoEl = document.getElementById('replayInfo');
+      var rowReplayEl = document.getElementById('rowReplay');
+      var replayContentEl = document.getElementById('replayContent');
+      var loadingEl = document.getElementById('loading');
+      var replyTextEl = document.getElementById('replyText');
+      var uploadBtn = document.getElementById('uploadBtn');
+      var uploadPlus = document.getElementById('uploadPlus');
+      var uploadPreview = document.getElementById('uploadPreview');
+      var replyBtn = document.getElementById('replyBtn');
+
+      var imagePreviewOverlay = document.getElementById('imagePreviewOverlay');
+      var imagePreviewClose = document.getElementById('imagePreviewClose');
+      var imagePreviewImg = document.getElementById('imagePreviewImg');
+      function showImagePreview(src) {
+        if (src) {
+          imagePreviewImg.src = src;
+          imagePreviewOverlay.classList.add('show');
+        }
+      }
+      window.showImagePreview = showImagePreview;
+      document.addEventListener('touchend', function (e) {
+        var wrap = e.target.closest && e.target.closest('.previewable-wrap');
+        if (wrap) {
+          var src = wrap.getAttribute('data-src') || (wrap.querySelector('img') && wrap.querySelector('img').src);
+          if (src) {
+            e.preventDefault();
+            showImagePreview(src);
+          }
+        }
+      }, { capture: true, passive: false });
+      imagePreviewClose.addEventListener('click', function () {
+        imagePreviewOverlay.classList.remove('show');
+      });
+      imagePreviewOverlay.addEventListener('click', function (e) {
+        if (e.target === imagePreviewOverlay) {
+          imagePreviewOverlay.classList.remove('show');
+        }
+      });
+
+      function renderInfo(info) {
+        if (!info || !info.content) return;
+        var c = info.content;
+        var type = Number(c.type);
+        var html = '';
+        if (type === 1) {
+          html = '<div class="info-detail">' +
+            '<div class="item-info"><div class="label">' + t('title') + '</div><div class="value">' + t('dnr') + '</div></div>' +
+            '<div class="item-info"><div class="label">' + t('oid') + '</div><div class="value">' + (c.order_id || '') + '</div></div>' +
+            '<div class="item-info"><div class="label">' + t('un') + '</div><div class="value">' + (c.utr_id || '') + '</div></div>' +
+            '<div class="item-info"><div class="label">' + t('upin') + '</div><div class="value">' + (c.upi_id || '') + '</div></div>' +
+            '<div class="item-info"><div class="label">' + t('time') + '</div><div class="value">' + (info.createTime || '') + '</div></div>' +
+            '</div>';
+          if (c.deposit_proof) {
+            var url = (c.deposit_proof || '').replace(/"/g, '&quot;');
+            html += '<a href="javascript:void(0)" class="image-content previewable-wrap" data-src="' + url.replace(/"/g, '&quot;') + '" onclick="window.showImagePreview(this.getAttribute(\'data-src\'));return false;"><img class="image previewable-img" src="' + url + '" alt=""></a>';
+          }
+        } else if (type === 2) {
+          html = '<div class="info-detail">' +
+            '<div class="item-info"><div class="label">' + t('title') + '</div><div class="value">' + t('wp') + '</div></div>' +
+            '<div class="item-info"><div class="label">' + t('oid') + '</div><div class="value">' + (c.order_id || '') + '</div></div>' +
+            '</div>';
+        }
+        if (html) {
+          replayInfoEl.innerHTML = html;
+          replayInfoEl.style.display = 'block';
+        }
+      }
+
+      function renderReplies(list) {
+        if (!list || list.length === 0) {
+          replayContentEl.style.display = 'none';
+          return;
+        }
+        var html = '';
+        list.forEach(function (v) {
+          var content = v.content;
+          if (typeof content === 'string') {
+            try { content = JSON.parse(content); } catch (e) { content = { text: content, img: [] }; }
+          }
+          content = content || { text: '', img: [] };
+          var name = Number(v.uid) > 0 ? t('s') : t('u');
+          var nameColor = Number(v.uid) > 0 ? 'color:#409EFF' : '';
+          html += '<div class="replay-item">' +
+            '<div class="user-info"><div class="name" style="' + nameColor + '">' + name + '</div><div class="time">' + (v.createTime || '') + '</div></div>' +
+            '<div class="content">' + (content.text || '') + '</div>';
+          if (content.img && content.img.length) {
+            html += '<div class="image">';
+            content.img.forEach(function (url) {
+              var u = (url || '').replace(/"/g, '&quot;');
+              html += '<a href="javascript:void(0)" class="image-item previewable-wrap" data-src="' + u + '" onclick="window.showImagePreview(this.getAttribute(\'data-src\'));return false;"><img class="previewable-img" src="' + u + '" alt=""></a>';
+            });
+            html += '</div>';
+          }
+          html += '</div>';
+        });
+        replayContentEl.innerHTML = html;
+        replayContentEl.style.display = 'block';
+      }
+
+      function getDetailList() {
+        if (!issueId) {
+          loadingEl.style.display = 'none';
+          showToast('Invalid issue');
+          return;
+        }
+        loadingEl.style.display = 'flex';
+        var para = Object.assign({}, getCommonParams(), {
+          pageNum: 1,
+          pageSize: 999,
+          issueId: issueId
+        });
+        requestWithToken('/user/issue/detail', para).then(function (res) {
+          loadingEl.style.display = 'none';
+          if (res.code !== 200 || !res.data) {
+            showToast(res.message || 'Request failed');
+            return;
+          }
+          var rows = res.data.rows || [];
+          rows.forEach(function (r) {
+            if (typeof r.content === 'string') {
+              try { r.content = JSON.parse(r.content); } catch (e) {}
+            }
+          });
+          if (rows.length > 0) {
+            listInfo = rows[rows.length - 1];
+            replyList = rows.slice(0, -1);
+            renderInfo(listInfo);
+            renderReplies(replyList);
+          }
+          if (status !== 2) {
+            rowReplayEl.style.display = 'block';
+            document.getElementById('replyBtn').textContent = t('r');
+          }
+        }).catch(function () {
+          loadingEl.style.display = 'none';
+          showToast('Network error');
+        });
+      }
+
+      var fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/jpeg,image/png,image/jpg';
+      fileInput.style.display = 'none';
+      document.body.appendChild(fileInput);
+      fileInput.onchange = function () {
+        var file = fileInput.files[0];
+        if (!file) return;
+        var fd = new FormData();
+        fd.append('file', file);
+        // 统一场景标记
+        fd.append('scene', 'gold');
+        fetch('https://up.luckyclub.cc/user/file/image', {
+          method: 'POST',
+          headers: { 'authorization': getToken() || '' },
+          body: fd
+        }).then(function (r) { return r.json(); }).then(function (res) {
+          if (res.code === 200 && res.data && res.data[0]) {
+            imgArr = [res.data[0].webPath];
+            uploadPlus.style.display = 'none';
+            uploadPreview.src = res.data[0].webPath;
+            uploadPreview.style.display = 'block';
+          }
+        }).catch(function () { showToast('Upload failed'); });
+        fileInput.value = '';
+      };
+      uploadBtn.onclick = function () { fileInput.click(); };
+
+      replyBtn.onclick = function () {
+        var text = (replyTextEl.value || '').trim();
+        if (!text && imgArr.length === 0) {
+          showToast('Please enter content');
+          return;
+        }
+        var jsonStr = JSON.stringify({ text: text, img: imgArr });
+        replyBtn.classList.add('disable');
+        var addPara = Object.assign({}, getCommonParams(), {
+          content: jsonStr,
+          issueId: issueId
+        });
+        requestWithToken('/user/issue/detailAdd', addPara).then(function (res) {
+          replyBtn.classList.remove('disable');
+          if (res.code === 200) {
+            showToast(res.message || 'Success');
+            replyTextEl.value = '';
+            imgArr = [];
+            uploadPlus.style.display = '';
+            uploadPreview.style.display = 'none';
+            uploadPreview.src = '';
+            getDetailList();
+          } else {
+            showToast(res.message || 'Failed');
+          }
+        }).catch(function () {
+          replyBtn.classList.remove('disable');
+          showToast('Network error');
+        });
+      };
+
+      getDetailList();
+    })();
+
+    (function init() {
+      if (window.GLJsBridge) {
+        window.GLJsBridge.setToolbarVisibility('0');
+      }
+    })();
+  </script>
+</body>
+</html>

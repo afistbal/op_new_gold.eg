@@ -18,8 +18,8 @@
     return code
   }
 
-  // 统一的语言检测：优先原生 -> URL ?lang= -> 默认 ar（EG）
-  // 并把 eg 归一为 ar，用于镜像和阿语文案
+  // 统一的语言检测：优先原生 -> URL ?lang= -> 默认 ar
+  // 并把 eg 归一为 ar；只有明确传了 en 时才用英文（不镜像）
   function detectLang() {
     var appLanguage = null
     try {
@@ -32,20 +32,21 @@
 
     if (!appLanguage) {
       var lang = getUrlParam('lang')
-      appLanguage = lang ? lang : 'ar'
+      // 没有任何来源的语言时，默认阿语（走镜像）
+      appLanguage = lang || 'ar'
     }
 
     appLanguage = normalizeLang(appLanguage)
 
     switch (appLanguage) {
+      case 'en':
+        // 只有明确传了英文，才用英文（关闭镜像）
+        return 'en'
       case 'ar':
       case 'eg':
-        return 'ar'
-      case 'hi':
-        return 'hi'
-      case 'en':
       default:
-        return 'en'
+        // 其余全部按阿语处理（含 hi/zh 等），都走镜像
+        return 'ar'
     }
   }
 

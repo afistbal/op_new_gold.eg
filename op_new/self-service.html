@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0,width=device-width,viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <title>Self Service Center</title>
+  <link rel="icon" type="image/png" href="./images/icon.png">
+  <link rel="stylesheet" href="./css/touch-scroll.css">
+  <!-- 统一加密依赖（本地 js 目录，不取远程） -->
+  <script src="./js/crypto-js.min.js"></script>
+  <script src="./js/md5.min.js"></script>
+  <script src="./js/requestEncrypt.js"></script>
+  <script src="./js/encryptedRequest.js"></script>
+  <script>
+    function IsPhone() {
+      var info = navigator.userAgent;
+      return /mobile/i.test(info);
+    }
+    function setHtmlFontSize() {
+      var html = document.getElementsByTagName('html')[0];
+      var deviceWidth = document.documentElement.getBoundingClientRect().width;
+      var designWidth = 750;
+      var initFontSize = 100;
+      if (IsPhone()) {
+        html.style.fontSize = (deviceWidth / designWidth) * initFontSize + 'px';
+      } else {
+        html.style.fontSize = '54px';
+      }
+    }
+    window.onresize = setHtmlFontSize;
+    setHtmlFontSize();
+  </script>
+  <script src="./js/env.js"></script>
+  <script src="./js/mirror-lang.js"></script>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    body,
+    html {
+      font-size: 0.28rem;
+      font-family: "Roboto", "Inter", -apple-system, BlinkMacSystemFont,
+        "Helvetica Neue", Helvetica, Segoe UI, Arial, "PingFang SC", miui,
+        "Hiragino Sans GB", "Microsoft Yahei", sans-serif;
+      max-width: 425px;
+      margin: 0 auto;
+      background-color: #1A1D2DFF;
+      color: #BAC2D2FF;
+    }
+
+    body {
+      overflow-x: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    body::-webkit-scrollbar {
+      display: none;
+      width: 0;
+    }
+
+    html {
+      -webkit-font-smoothing: antialiased !important;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      padding: 0.2rem 0.4rem;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      border-radius: 0.16rem;
+      font-size: 0.24rem;
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .toast.show {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    /* 严格对齐 Vue /selfService 页的样式 */
+    .page-self-service {
+      background-color: #1A1D2DFF;
+      min-height: 100vh;
+      padding: 0rem 0 2.6rem 0;
+      box-sizing: border-box;
+      position: relative;
+      bottom: 0;
+    }
+
+    .bg-img {
+      margin-top: 0rem;
+    }
+
+    .bg-img img {
+      width: 100%;
+    }
+
+    .self-service-title {
+      font-size: 0.32rem;
+      font-weight: 600;
+      color: #ffffff;
+      margin: 0.24rem 0.2rem 0.06rem;
+    }
+
+    .body-part-two {
+      margin: 0.2rem 0.2rem;
+      background-color: #2F3547;
+      border-radius: 0.16rem;
+      overflow: hidden;
+    }
+
+    .part-two-item {
+      border-radius: 0.1rem;
+    }
+
+    .part-two-item-content {
+      display: flex;
+      margin: 0 0.1rem;
+      padding: 0.24rem 0;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 0.01rem rgba(255, 255, 255, 0.06) solid;
+    }
+
+    .part-two-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .part-two-left img {
+      width: 0.6rem;
+      height: 0.6rem;
+    }
+
+    .part-two-left .title {
+      font-size: 0.26rem;
+      margin-inline-start: 0.08rem;
+      color: #ffffff;
+    }
+
+    .part-two-right {
+      display: flex;
+      align-items: center;
+      font-size: 0.11rem;
+      color: #BAC2D2FF;
+    }
+
+    .part-two-right img {
+      width: 0.4rem;
+      margin-inline-start: 0.1rem;
+    }
+
+    /* 阿语 / EG 镜像：RTL 布局，三角在左、文案在右，箭头方向反转 */
+    html[dir="rtl"] body { direction: rtl; }
+    html[dir="rtl"] .part-two-right img { transform: scaleX(-1); }
+
+    .kind-tips {
+      margin: 0.24rem 0.2rem 0.1rem;
+    }
+
+    .kind-tips-title {
+      font-size: 0.3rem;
+      margin-bottom: 0.08rem;
+      color: #ffffff;
+      font-weight: 500;
+    }
+
+    .kind-tips-content p {
+      font-size: 0.24rem;
+      color: #BAC2D2FF;
+      line-height: 1.45;
+    }
+
+    .progress-query {
+      font-size: 0.26rem;
+      color: #653E26;
+      background: linear-gradient(90deg, #F6DA9A 0%, #DCB364 100%);
+      text-align: center;
+      border-radius: 0.08rem;
+      padding: 0.18rem 0.24rem;
+      margin: 0.22rem 0.15rem 0.15rem;
+      font-weight: 500;
+    }
+
+    /* 仅在触摸设备上启用"橡皮筋"式弹性滚动效果 */
+    @media (hover: none) and (pointer: coarse) {
+      body {
+        overscroll-behavior-y: auto;
+        overscroll-behavior-x: none;
+        -webkit-overflow-scrolling: touch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-self-service">
+    <div class="bg-img">
+      <img src="./images/self_service/service_bg_img.png" alt="bg">
+    </div>
+    <div class="self-service">
+      <div class="self-service-title" id="selfServiceTitle">Self Service</div>
+      <div class="body-part-two">
+        <div class="part-two-item" onclick="openPage('recharge-history.html')">
+          <div class="part-two-item-content">
+            <div class="part-two-left">
+              <img src="./images/self_service/deposit_not_receive_icon.png" alt="">
+              <div class="title" id="cardDnr">Deposit Not Receive</div>
+            </div>
+            <div class="part-two-right">
+              <img src="./images/self_service/icon_back@2x.png" alt="">
+            </div>
+          </div>
+        </div>
+        <div class="part-two-item" onclick="openPage('withdrawal-history.html')">
+          <div class="part-two-item-content">
+            <div class="part-two-left">
+              <img src="./images/self_service/withdrawal_problem_icon.png" alt="">
+              <div class="title" id="cardWp">Withdrawal Problem</div>
+            </div>
+            <div class="part-two-right">
+              <img src="./images/self_service/icon_back@2x.png" alt="">
+            </div>
+          </div>
+        </div>
+        <div class="part-two-item" onclick="resetPin()">
+          <div class="part-two-item-content">
+            <div class="part-two-left">
+              <img src="./images/self_service/icon_faq@2x.png" alt="">
+              <div class="title" id="cardPinRe">PIN Reset</div>
+            </div>
+            <div class="part-two-right">
+              <img src="./images/self_service/icon_back@2x.png" alt="">
+            </div>
+          </div>
+        </div>
+        <div class="part-two-item" onclick="resetWithdrawal()">
+          <div class="part-two-item-content">
+            <div class="part-two-left">
+              <img src="./images/self_service/reset_withdrawal.png" alt="">
+              <div class="title" id="cardRwba">Reset withdrawal bank account</div>
+            </div>
+            <div class="part-two-right">
+              <img src="./images/self_service/icon_back@2x.png" alt="">
+            </div>
+          </div>
+        </div>
+        <div class="part-two-item" onclick="openPage('chat.html')">
+          <div class="part-two-item-content">
+            <div class="part-two-left">
+              <img src="./images/self_service/game_problem_icon.png" alt="">
+              <div class="title" id="cardGameProblems">Game Problems</div>
+            </div>
+            <div class="part-two-right">
+              <img src="./images/self_service/icon_back@2x.png" alt="">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="kind-tips">
+      <div class="kind-tips-title" id="kindTipsTitle">Kind tips</div>
+      <div class="kind-tips-content">
+        <p id="kindTipsP1">
+          1. Please select the relevant question and submit it for review. After successful submission, customer service will process it as soon as possible.
+        </p>
+        <p id="kindTipsP2">
+          2. After submitting for review, you can use [Progress Query] to view the review result of the work order you submitted.
+        </p>
+      </div>
+    </div>
+    <div class="progress-query" id="progressQueryBtn" onclick="openPage('self-service-list.html')">
+      Progress Query
+    </div>
+  </div>
+
+  <script src="./js/GDBridge.js"></script>
+  <script>
+    function getUrlParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name) || '';
+    }
+
+    function getLang() {
+      if (window.GLJsBridge && typeof window.GLJsBridge.getLanguage === 'function') {
+        try {
+          const appLang = window.GLJsBridge.getLanguage();
+          if (appLang && appLang !== 'x') {
+            const lang = (appLang || 'en').toLowerCase();
+            if (['en', 'hi', 'ar'].includes(lang)) return lang;
+          }
+        } catch (e) {}
+      }
+      const urlLang = getUrlParam('lang');
+      if (urlLang) {
+        const lang = urlLang.toLowerCase();
+        if (['en', 'hi', 'ar'].includes(lang)) return lang;
+      }
+      try {
+        const stored = localStorage.getItem('op_lang');
+        if (stored) return stored;
+      } catch (e) {}
+      return 'en';
+    }
+
+    function getToken() {
+      if (window.GLJsBridge && typeof window.GLJsBridge.getToken === 'function') {
+        try {
+          const t = window.GLJsBridge.getToken();
+          if (t && t !== 'x') return String(t);
+        } catch (e) {}
+      }
+      return getUrlParam('token') || '';
+    }
+
+    function getEnv() {
+      var ua = navigator.userAgent || '';
+      if (ua.indexOf('Android') > -1 || ua.indexOf('Linux') > -1) return 'h5-Android';
+      if (ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)) return 'h5-iOS';
+      return 'h5-other';
+    }
+    function extractModel(ua) {
+      var m = (ua || '').match(/\((.*?)\)/);
+      return m ? m[1] : '';
+    }
+    function getCommonParams() {
+      var deviceKey = '';
+      try { deviceKey = localStorage.getItem('deviceKey') || ''; } catch (e) {}
+      var abbr = '';
+      try { abbr = localStorage.getItem('op_abbr') || ''; } catch (e) {}
+      return {
+        sysType: 'h5',
+        env: getEnv(),
+        timestamp: Math.round(Date.now() / 1000).toString(),
+        sysVersion: '1.1.0',
+        lang: getLang(),
+        deviceKey: 'h5_' + deviceKey,
+        model: extractModel(navigator.userAgent),
+        abbr: abbr,
+        appVersion: 'LuckyLottery',
+        appVersionCode: '1.0.1',
+        channelType: '1',
+        packageName: ''
+      };
+    }
+
+    function saveTokenAndLang() {
+      const token = getToken();
+      const lang = getLang();
+      try {
+        if (token) localStorage.setItem('op_token', token);
+        if (lang) localStorage.setItem('op_lang', lang);
+      } catch (e) {}
+    }
+
+    const I18N = {
+      en: {
+        selfServiceTitle: "Self Service",
+        dnr: "Deposit Not Receive",
+        wp: "Withdrawal Problem",
+        pinRe: "PIN Reset",
+        rwba: "Reset withdrawal bank account",
+        gameProblems: "Game Problems",
+        kindTips: "Kind tips",
+        pstrqas: "1. Please select the relevant question and submit it for review. After successful submission, customer service will process it as soon as possible.",
+        asfrycut: "2. After submitting for review, you can use [Progress Query] to view the review result of the work order you submitted.",
+        progressQuery: "Progress Query"
+      },
+      hi: {
+        selfServiceTitle: "सेल्फ सर्विस",
+        dnr: "जमा प्राप्त नहीं हुआ",
+        wp: "निकासी समस्या",
+        pinRe: "पिन रीसेट",
+        rwba: "निकासी बैंक खाता रीसेट करें",
+        gameProblems: "गेम समस्याएँ",
+        kindTips: "महत्वपूर्ण सुझाव",
+        pstrqas: "1. कृपया संबंधित प्रश्न का चयन करें और समीक्षा के लिए सबमिट करें। सफलतापूर्वक सबमिट करने के बाद, कस्टमर सर्विस विशेषज्ञ तुरंत इसे संभालेंगे।",
+        asfrycut: "2. समीक्षा के लिए सबमिट करने के बाद, आप [प्रगति पूछताछ] का उपयोग करके सबमिट किए गए वर्क ऑर्डर की समीक्षा का परिणाम देख सकते हैं।",
+        progressQuery: "प्रगति पूछताछ"
+      },
+      ar: {
+        selfServiceTitle: "مركز الخدمة الذاتية",
+        dnr: "الإيداع لم يُستلم",
+        wp: "مشكلة السحب",
+        pinRe: "إعادة تعيين رقم التعريف الشخصي",
+        rwba: "إعادة ضبط حساب السحب البنكي",
+        gameProblems: "مشاكل اللعبة",
+        kindTips: "نصائح مهمة",
+        pstrqas: "1. يُرجى اختيار المشكلة ذات الصلة وتقديمها للمراجعة. بعد الإرسال بنجاح، سيقوم موظف خدمة العملاء بمعالجتها في أقرب وقت ممكن.",
+        asfrycut: "2. بعد تقديم الطلب للمراجعة، يمكنك استخدام [استعلام التقدم] لعرض نتيجة مراجعة طلب الخدمة الذي قمت بتقديمه.",
+        progressQuery: "استعلام التقدم"
+      }
+    };
+
+    function applyI18n() {
+      const lang = getLang();
+      const t = I18N[lang] || I18N.en;
+      document.getElementById('selfServiceTitle').textContent = t.selfServiceTitle;
+      document.getElementById('cardDnr').textContent = t.dnr;
+      document.getElementById('cardWp').textContent = t.wp;
+      document.getElementById('cardPinRe').textContent = t.pinRe;
+      document.getElementById('cardRwba').textContent = t.rwba;
+      document.getElementById('cardGameProblems').textContent = t.gameProblems;
+      document.getElementById('kindTipsTitle').textContent = t.kindTips;
+      document.getElementById('kindTipsP1').textContent = t.pstrqas;
+      document.getElementById('kindTipsP2').textContent = t.asfrycut;
+      document.getElementById('progressQueryBtn').textContent = t.progressQuery;
+    }
+
+    // 加密请求已封装到 js/encryptedRequest.js，Vue/纯 HTML 通用，参数通过 options 传入或使用默认
+
+    function showToast(message) {
+      var toast = document.getElementById('toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'toast';
+        toast.className = 'toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(function () {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    function resetPin() {
+      const lang = getLang();
+      const t = I18N[lang] || I18N.en;
+      const title = t.pinRe || 'PIN Reset';
+      var params = Object.assign({}, getCommonParams(), { title: title });
+      EncryptedRequest.post('/user/gdUser/resetPin', params)
+        .then(function (res) {
+          showToast(res && res.message ? res.message : 'OK');
+        })
+        .catch(function () {
+          showToast('Network error');
+        });
+    }
+
+    function resetWithdrawal() {
+      var params = getCommonParams();
+      EncryptedRequest.post('/User/GdUserCard/restartCard', params)
+        .then(function (res) {
+          const lang = getLang();
+          const t = I18N[lang] || I18N.en;
+          const msg = (res && res.message) || t.rwba || 'Reset success';
+          showToast(msg);
+        })
+        .catch(function () {
+          showToast('Network error');
+        });
+    }
+
+    function buildUrl(path) {
+      const lang = getLang();
+      const token = getToken();
+      const params = [];
+      if (lang) params.push('lang=' + encodeURIComponent(lang));
+      if (token) params.push('token=' + encodeURIComponent(token));
+      const query = params.length ? '?' + params.join('&') : '';
+      return path + query;
+    }
+
+    function openPage(path) {
+      const url = buildUrl(path);
+      // H5 统一走浏览器跳转，不再通过 jumpWebView
+      window.location.href = url;
+    }
+
+    function fetchJudAuditVersion() {
+      EncryptedRequest.post('/user/gdUser/judAuditVersion', {}).then(function (d) {
+        if (d && d.code === 200 && d.data) {
+          try {
+            if (d.data.kk) localStorage.setItem('deviceKey', d.data.kk);
+            if (d.data.abbr) localStorage.setItem('op_abbr', d.data.abbr);
+            if (d.data.lang && !getUrlParam('lang')) localStorage.setItem('op_lang', d.data.lang);
+          } catch (e) {}
+        }
+      }).catch(function () {});
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.EGMirror && typeof window.EGMirror.applyMirror === 'function') {
+        window.EGMirror.applyMirror();
+      }
+      fetchJudAuditVersion();
+      applyI18n();
+      saveTokenAndLang();
+    });
+
+    (function init() {
+      if (window.GLJsBridge) {
+        window.GLJsBridge.setToolbarVisibility('0');
+      }
+    })();
+  </script>
+</body>
+</html>
+

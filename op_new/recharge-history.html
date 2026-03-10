@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0,width=device-width,viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <title>Deposit History</title>
+  <link rel="icon" type="image/png" href="./images/icon.png">
+  <link rel="stylesheet" href="./css/touch-scroll.css">
+  <script>
+    function IsPhone() {
+      var info = navigator.userAgent;
+      return /mobile/i.test(info);
+    }
+    function setHtmlFontSize() {
+      var html = document.getElementsByTagName('html')[0];
+      var deviceWidth = document.documentElement.getBoundingClientRect().width;
+      var designWidth = 750;
+      var initFontSize = 100;
+      if (IsPhone()) {
+        html.style.fontSize = (deviceWidth / designWidth) * initFontSize + 'px';
+      } else {
+        html.style.fontSize = '54px';
+      }
+    }
+    window.onresize = setHtmlFontSize;
+    setHtmlFontSize();
+  </script>
+  <script src="./js/env.js"></script>
+  <script src="./js/mirror-lang.js"></script>
+  <script src="./js/crypto-js.min.js"></script>
+  <script src="./js/md5.min.js"></script>
+  <script src="./js/requestEncrypt.js"></script>
+  <script src="./js/encryptedRequest.js"></script>
+  <style>
+    * { padding: 0; margin: 0; box-sizing: border-box; }
+    body,
+    html {
+      font-size: 0.28rem;
+      font-family: "Roboto", "Inter", -apple-system, BlinkMacSystemFont,
+        "Helvetica Neue", Helvetica, Segoe UI, Arial, "PingFang SC", miui,
+        "Hiragino Sans GB", "Microsoft Yahei", sans-serif;
+      max-width: 425px;
+      margin: 0 auto;
+      background-color: #1A1D2DFF;
+      color: #BAC2D2FF;
+    }
+    body {
+      overflow-x: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    body::-webkit-scrollbar { display: none; width: 0; }
+    html { -webkit-font-smoothing: antialiased !important; -webkit-text-size-adjust: 100%; }
+
+    .container-wallet-recharge-history {
+      height: 100vh;
+      overflow-y: auto;
+      background-color: #1A1D2DFF;
+    }
+    .wapper {
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      overflow-y: auto;
+      background-color: #1A1D2DFF;
+    }
+    .show-loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0.4rem 0;
+      min-height: 1rem;
+    }
+    .show-loading .loading-spinner {
+      width: 0.8rem;
+      height: 0.8rem;
+      border: 0.06rem solid rgba(246, 218, 154, 0.25);
+      border-top-color: #F6DA9A;
+      border-radius: 50%;
+      animation: loading-spin 0.8s linear infinite;
+    }
+    @keyframes loading-spin {
+      to { transform: rotate(360deg); }
+    }
+    .history-list { margin: 0.2rem 0.2rem 0; }
+    .histroy-item {
+      padding: 0.22rem 0.22rem 0.18rem;
+      margin: 0 0 0.2rem;
+      background-color: #2F3547;
+      border-radius: 0.16rem;
+      box-shadow: 0 0.08rem 0.32rem rgba(0, 0, 0, 0.6);
+    }
+    .deposit-status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 0.01rem rgba(255, 255, 255, 0.08) solid;
+      padding-bottom: 0.1rem;
+      margin-bottom: 0.1rem;
+    }
+    .deposit-status .deposit {
+      border-radius: 0.04rem;
+      background-color: #18b660;
+      color: #ffffff;
+      font-size: 0.26rem;
+      padding: 0.06rem 0.32rem;
+      font-weight: 500;
+    }
+    .deposit-status .status {
+      font-size: 0.26rem;
+      font-weight: 500;
+    }
+    .deposit-status .successFul { color: #18b660; }
+    .deposit-status .toBePaid { color: #7BA8F4FF; }
+    .deposit-status .failed { color: #EB4A5AFF; }
+
+    .item-style {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .item-style span {
+      color: #BAC2D2FF;
+      font-size: 0.24rem;
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.15rem;
+    }
+    .item-style span img {
+      width: 0.28rem;
+      margin-inline-start: 0.05rem;
+    }
+
+    /* 阿语 / EG 镜像：RTL */
+    html[dir="rtl"] body,
+    html[dir="rtl"] .container-wallet-recharge-history,
+    html[dir="rtl"] .wapper,
+    html[dir="rtl"] .histroy-item,
+    html[dir="rtl"] .item-style { direction: rtl; }
+    .item-style .money {
+      color: #F6DA9A;
+      font-weight: 500;
+    }
+    .item-style .coins {
+      color: #F6DA9A;
+      font-weight: 500;
+    }
+    .item-style .copy-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.1rem;
+    }
+    .item-style .copy-btn {
+      width: 0.28rem;
+      height: 0.28rem;
+      background: url("./images/self_service/copy.png") no-repeat center;
+      background-size: contain;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .item-style .receipt-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.15rem 0;
+      margin-top: 0.1rem;
+      background: linear-gradient(90deg, #F6DA9A 0%, #DCB364 100%);
+      border-radius: 0.08rem;
+      font-size: 0.24rem;
+      color: #653E26;
+      font-weight: 600;
+    }
+    .no-more,
+    .no-data {
+      text-align: center;
+      font-size: 0.32rem;
+      margin: 0.4rem 0;
+      color: #6F7A8C;
+    }
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      padding: 0.2rem 0.4rem;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      border-radius: 0.16rem;
+      font-size: 0.24rem;
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .toast.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* 仅在触摸设备上启用"橡皮筋"式弹性滚动效果 */
+    @media (hover: none) and (pointer: coarse) {
+      body {
+        overscroll-behavior-y: auto;
+        overscroll-behavior-x: none;
+        -webkit-overflow-scrolling: touch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container-wallet-recharge-history">
+    <div class="wapper" id="wrapper">
+      <div class="history-list" id="historyList"></div>
+      <div class="show-loading" id="loading" style="display:none;"><div class="loading-spinner"></div></div>
+      <div class="no-data" id="noData" style="display:none;">No data</div>
+      <div class="no-more" id="noMore" style="display:none;"></div>
+    </div>
+  </div>
+
+  <script src="./js/GDBridge.js"></script>
+  <script>
+    function getUrlParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name) || '';
+    }
+    function getLang() {
+      if (window.GLJsBridge && typeof window.GLJsBridge.getLanguage === 'function') {
+        try {
+          const appLang = window.GLJsBridge.getLanguage();
+          if (appLang && appLang !== 'x') {
+            const lang = (appLang || 'en').toLowerCase();
+            if (['en', 'hi', 'ar'].includes(lang)) return lang;
+          }
+        } catch (e) {}
+      }
+      const urlLang = getUrlParam('lang');
+      if (urlLang) {
+        const lang = urlLang.toLowerCase();
+        if (['en', 'hi', 'ar'].includes(lang)) return lang;
+      }
+      try {
+        const stored = localStorage.getItem('op_lang');
+        if (stored) return stored;
+      } catch (e) {}
+      return 'en';
+    }
+    function getToken() {
+      if (window.GLJsBridge && typeof window.GLJsBridge.getToken === 'function') {
+        try {
+          const t = window.GLJsBridge.getToken();
+          if (t && t !== 'x') return t;
+        } catch (e) {}
+      }
+      return getUrlParam('token') || '';
+    }
+
+    const I18N = {
+      en: {
+        title: 'Deposit History',
+        deposit: 'Deposit',
+        amount: 'Recharge Amount',
+        coinsReceived: 'Coins Received',
+        type: 'Type',
+        time: 'Time',
+        orderNumber: 'Order Number',
+        noMore: 'No More',
+        noData: 'No data',
+        submitReceipt: 'Submit Receipt',
+        copySuccess: 'Copy Successful'
+      },
+      hi: {
+        title: 'जमा इतिहास',
+        deposit: 'जमा',
+        amount: 'रीचार्ज राशि',
+        coinsReceived: 'प्राप्त सिक्के',
+        type: 'प्रकार',
+        time: 'समय',
+        orderNumber: 'ऑर्डर नंबर',
+        noMore: 'और नहीं',
+        noData: 'कोई डेटा नहीं',
+        submitReceipt: 'रसीद जमा करें',
+        copySuccess: 'कॉपी सफल'
+      },
+      ar: {
+        title: 'سجل الإيداع',
+        deposit: 'إيداع',
+        amount: 'مبلغ الشحن',
+        coinsReceived: 'العملات المستلمة',
+        type: 'النوع',
+        time: 'الوقت',
+        orderNumber: 'رقم الطلب',
+        noMore: 'لا مزيد',
+        noData: 'لا توجد بيانات',
+        submitReceipt: 'إرسال الإيصال',
+        copySuccess: 'تم النسخ'
+      }
+    };
+    function t(key) {
+      const lang = getLang();
+      const pack = I18N[lang] || I18N.en;
+      return pack[key] || (I18N.en[key] || '');
+    }
+
+    function showToast(message) {
+      var toast = document.getElementById('toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'toast';
+        toast.className = 'toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(function () { toast.classList.remove('show'); }, 2000);
+    }
+
+    function getApiBaseUrl() {
+      if (window.envConfig && envConfig.base_url) return envConfig.base_url;
+      if (typeof base_url !== 'undefined' && base_url) return base_url;
+      return '';
+    }
+    function requestWithToken(path, body) {
+      return EncryptedRequest.post(path, body || {}, {
+        getToken: getToken,
+        getLang: getLang
+      });
+    }
+    function mapDepositStatus(status) {
+      switch (String(status)) {
+        case '1': return 'Complete';
+        case '2': return 'Failed';
+        case '0': return 'To Be Paid';
+        default: return '';
+      }
+    }
+    function buildUrl(path) {
+      const lang = getLang();
+      const token = getToken();
+      const params = [];
+      if (lang) params.push('lang=' + encodeURIComponent(lang));
+      if (token) params.push('token=' + encodeURIComponent(token));
+      if (params.length === 0) return path;
+      const sep = path.indexOf('?') >= 0 ? '&' : '?';
+      return path + sep + params.join('&');
+    }
+    function copyToClipboard(text) {
+      if (!text) return false;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
+          showToast(t('copySuccess'));
+        }).catch(function () { fallbackCopy(text); });
+        return true;
+      }
+      return fallbackCopy(text);
+    }
+    function fallbackCopy(text) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast(t('copySuccess'));
+        return true;
+      } catch (e) {
+        return false;
+      } finally {
+        document.body.removeChild(ta);
+      }
+    }
+
+    (function () {
+      if (window.EGMirror && typeof window.EGMirror.applyMirror === 'function') {
+        window.EGMirror.applyMirror();
+      } else {
+        var lang = (new URLSearchParams(window.location.search || '')).get('lang') || '';
+        if (lang.toLowerCase().split('-')[0] === 'ar') {
+          document.documentElement.setAttribute('dir', 'rtl');
+          document.documentElement.setAttribute('lang', 'ar');
+          if (document.body) document.body.classList.add('mirror-mode');
+        }
+      }
+
+      let page = 1;
+      const pageSize = 20;
+      let stopSearch = false;
+      let loading = false;
+
+      const wrapper = document.getElementById('wrapper');
+      const historyList = document.getElementById('historyList');
+      const loadingEl = document.getElementById('loading');
+      const noDataEl = document.getElementById('noData');
+      const noMoreEl = document.getElementById('noMore');
+
+      document.title = t('title');
+
+      function renderItems(rows, append) {
+        if (!append) historyList.innerHTML = '';
+        rows.forEach(function (item) {
+          const div = document.createElement('div');
+          div.className = 'histroy-item';
+          const statusClass =
+            item.status == '1'
+              ? 'successFul'
+              : (item.status == '0'
+                ? 'toBePaid'
+                : (item.status == '2' ? 'failed' : ''));
+          div.innerHTML =
+            '<div class="deposit-status">' +
+            '  <span class="deposit">' + t('deposit') + '</span>' +
+            '  <span class="status ' + statusClass + '">' + mapDepositStatus(item.status) + '</span>' +
+            '</div>' +
+            '<div class="item-style">' +
+            '  <span>' + t('amount') + '</span>' +
+            '  <span class="money">' + (item.cash || '') + '</span>' +
+            '</div>' +
+            '<div class="item-style">' +
+            '  <span>' + t('coinsReceived') + '</span>' +
+            '  <span class="coins">' + (item.coins || item.coin || item.coinNum || "") + '</span>' +
+            '</div>' +
+            '<div class="item-style">' +
+            '  <span>' + t('type') + '</span>' +
+            '  <span>' + (item.payment || '') + '</span>' +
+            '</div>' +
+            '<div class="item-style">' +
+            '  <span>' + t('time') + '</span>' +
+            '  <span>' + (item.modifyTime || '') + '</span>' +
+            '</div>' +
+            '<div class="item-style order-row">' +
+            '  <span>' + t('orderNumber') + '</span>' +
+            '  <span class="copy-wrap">' +
+            '    <span class="order-id-text">' + (item.orderId || '') + '</span>' +
+            '    <span class="copy-btn" title="Copy"></span>' +
+            '  </span>' +
+            '</div>';
+
+          // status==0 时，展示“提交回执”按钮，跳转到问题页
+          if (String(item.status) === '0') {
+            const orderAmount = String(item.cash || '');
+            const orderNumber = String(item.orderId || item.order_id || '');
+            const btnWrap = document.createElement('div');
+            btnWrap.className = 'item-style';
+            const btn = document.createElement('div');
+            btn.className = 'receipt-btn';
+            btn.textContent = t('submitReceipt');
+            btn.onclick = function () {
+              const query = 'orderAmount=' + encodeURIComponent(orderAmount) +
+                '&orderNumber=' + encodeURIComponent(orderNumber);
+              const pathWithQuery = 'deposit-not-receive.html?' + query;
+              var url = pathWithQuery;
+              if (pathWithQuery.indexOf('http') !== 0) {
+                var base = window.location.href.replace(/[#?].*$/, '').replace(/[^/]+$/, '');
+                url = base + pathWithQuery;
+              }
+              // 跳转前写入 sessionStorage，防止 App/重定向 把 query 丢掉后目标页拿不到参数
+              try {
+                sessionStorage.setItem('op_dnr_orderAmount', orderAmount);
+                sessionStorage.setItem('op_dnr_orderNumber', orderNumber);
+              } catch (e) {}
+              // H5 下统一走浏览器跳转
+              window.location.href = url;
+            };
+            btnWrap.appendChild(btn);
+            div.appendChild(btnWrap);
+          }
+
+          historyList.appendChild(div);
+        });
+      }
+
+      function loadPage(p, append) {
+        if (loading || stopSearch) return;
+        loading = true;
+        loadingEl.style.display = 'flex';
+        noDataEl.style.display = 'none';
+        noMoreEl.style.display = 'none';
+
+        requestWithToken('/user/gameRecord/deposit', {
+          pageNum: p,
+          pageSize: pageSize,
+          status: -1
+        }).then(function (res) {
+          loading = false;
+          loadingEl.style.display = 'none';
+          const rows = (res && res.data && res.data.rows) || [];
+          if (!rows.length) {
+            if (p === 1) {
+              noDataEl.textContent = t('noData');
+              noDataEl.style.display = 'block';
+            } else {
+              stopSearch = true;
+              noMoreEl.textContent = t('noMore');
+              noMoreEl.style.display = 'block';
+            }
+            return;
+          }
+          renderItems(rows, append);
+          page = p + 1;
+        }).catch(function () {
+          loading = false;
+          loadingEl.style.display = 'none';
+          showToast('Network error');
+        });
+      }
+
+      wrapper.addEventListener('scroll', function () {
+        const scrollTop = wrapper.scrollTop;
+        const clientHeight = wrapper.clientHeight;
+        const scrollHeight = wrapper.scrollHeight;
+        if (scrollTop + clientHeight >= scrollHeight - 50) {
+          loadPage(page, true);
+        }
+      });
+
+      historyList.addEventListener('click', function (e) {
+        var btn = e.target.closest('.copy-btn');
+        if (btn) {
+          var wrap = btn.closest('.copy-wrap');
+          var textEl = wrap ? wrap.querySelector('.order-id-text') : null;
+          var text = textEl ? textEl.textContent : '';
+          if (text) {
+            e.preventDefault();
+            e.stopPropagation();
+            copyToClipboard(text.trim());
+          }
+        }
+      });
+
+      document.addEventListener('DOMContentLoaded', function () {
+        loadPage(1, false);
+      });
+    })();
+
+    (function init() {
+      if (window.GLJsBridge) {
+        window.GLJsBridge.setToolbarVisibility('0');
+      }
+    })();
+  </script>
+</body>
+</html>

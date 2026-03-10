@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0,width=device-width,viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <title>Deposit Not Receive</title>
+  <link rel="icon" type="image/png" href="./images/icon.png">
+  <link rel="stylesheet" href="./css/touch-scroll.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@2/lib/icon/index.css">
+  <script>
+    function IsPhone() {
+      var info = navigator.userAgent;
+      return /mobile/i.test(info);
+    }
+    function setHtmlFontSize() {
+      var html = document.getElementsByTagName('html')[0];
+      var deviceWidth = document.documentElement.getBoundingClientRect().width;
+      var designWidth = 750;
+      var initFontSize = 100;
+      if (IsPhone()) {
+        html.style.fontSize = (deviceWidth / designWidth) * initFontSize + 'px';
+      } else {
+        html.style.fontSize = '54px';
+      }
+    }
+    window.onresize = setHtmlFontSize;
+    setHtmlFontSize();
+  </script>
+  <script src="./js/env.js"></script>
+  <script src="./js/crypto-js.min.js"></script>
+  <script src="./js/md5.min.js"></script>
+  <script src="./js/requestEncrypt.js"></script>
+  <script src="./js/encryptedRequest.js"></script>
+  <style>
+    * { padding: 0; margin: 0; box-sizing: border-box; }
+    .van-ellipsis {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    body, html {
+      font-size: 0.28rem;
+      font-family: "Roboto", "Inter", -apple-system, BlinkMacSystemFont,
+        "Helvetica Neue", Helvetica, Segoe UI, Arial, "PingFang SC", miui,
+        "Hiragino Sans GB", "Microsoft Yahei", sans-serif;
+      max-width: 425px;
+      margin: 0 auto;
+      background-color: #1A1D2DFF;
+      color: #BAC2D2FF;
+    }
+    body {
+      overflow-x: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    body::-webkit-scrollbar { display: none; width: 0; }
+    html { -webkit-font-smoothing: antialiased !important; -webkit-text-size-adjust: 100%; }
+
+    .container-not-receive {
+      min-height: 100vh;
+      overflow-y: auto;
+      background-color: #1A1D2DFF;
+      padding: 0.24rem 0.2rem 2rem;
+    }
+    .not-receive {
+      margin-top: 0.06rem;
+    }
+    .receive-item {
+      font-size: 0.24rem;
+      margin-bottom: 0.18rem;
+      padding: 0.18rem 0.18rem 0.14rem;
+      background-color: #2F3547;
+      border-radius: 0.16rem;
+      box-shadow: 0 0.08rem 0.32rem rgba(0, 0, 0, 0.6);
+    }
+    .receive-item .title-color { color: #8F9AB3; }
+    .receive-item .title-content,
+    .receive-item .title-pdf { padding: 0.1rem 0; }
+    .receive-item .title-content::after,
+    .receive-item .title-pdf::after {
+      content: ' *';
+      color: #f00606;
+    }
+    .receive-item .input-content {
+      box-shadow: 0.01rem 0.01rem 0.1rem 0.01rem rgba(0, 0, 0, 0.4);
+      border-radius: 0.12rem;
+      overflow: hidden;
+      border: 1px solid transparent;
+      transition: border-color 0.2s ease;
+    }
+    /* 只读字段默认 40% 金色描边 */
+    .receive-item .input-content.readonly {
+      border: 1px solid rgba(248, 200, 124, 0.4);
+    }
+    /* 可编辑字段，输入完有数据时 100% 金色描边 */
+    .receive-item .input-content.has-value:not(.readonly) {
+      border: 1px solid #F8C87C;
+    }
+    .receive-item input {
+      width: 100%;
+      padding: 10px 16px;
+      border: none;
+      font-size: 14px;
+      line-height: 24px;
+      color: #FFFFFF;
+      background: #4C4F65;
+    }
+    /* 只读字段中文本 40% 金色 */
+    .receive-item input:disabled {
+      color: rgba(248, 200, 124, 0.4);
+      background: #3A3E52;
+    }
+    /* 可编辑字段，输入完有数据时 100% 金色文字 */
+    .receive-item .input-content.has-value:not(.readonly) input {
+      color: #F8C87C;
+    }
+    .receive-item input::placeholder {
+      color: #c8c9cc;
+    }
+    .receive-item input:focus {
+      outline: none;
+      box-shadow: none;
+    }
+    /* 覆盖浏览器 autofill 默认背景色 */
+    .receive-item input:-webkit-autofill,
+    .receive-item input:-webkit-autofill:hover,
+    .receive-item input:-webkit-autofill:focus,
+    .receive-item input:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+      box-shadow: 0 0 0 1000px #fff inset !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+    .receive-item input:disabled:-webkit-autofill {
+      -webkit-box-shadow: 0 0 0 1000px #f7f8fa inset !important;
+      box-shadow: 0 0 0 1000px #f7f8fa inset !important;
+    }
+    #fileInput { display: none; }
+    #uploadPdf {
+      width: 2rem;
+      height: 2rem;
+      box-shadow: 0.01rem 0.01rem 0.1rem 0.01rem rgba(0, 0, 0, 0.4);
+      border-radius: 0.12rem;
+      margin-top: 0.05rem;
+      background-color: #2F3547;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    #uploadPdf.preview-mode {
+      box-shadow: none;
+      background: transparent;
+    }
+    #uploadPdf #uploadNo,
+    #uploadPdf #loading {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    #uploadPdf #uploadNo {
+      color: #c8c9cc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      border-radius: 0.05rem;
+      background-color: #4C4F65;
+    }
+    #uploadPdf #uploadYes {
+      display: none;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-radius: 0.05rem;
+      overflow: hidden;
+    }
+    #uploadPdf #uploadYes img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      cursor: pointer;
+      display: block;
+    }
+    #uploadPdf #uploadYes .preview-delete {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 0.28rem;
+      height: 0.28rem;
+      background: rgba(0,0,0,0.7);
+      border-radius: 0 0 0 0.12rem;
+      color: #fff;
+      font-size: 0.24rem;
+      line-height: 0.28rem;
+      text-align: center;
+      cursor: pointer;
+      z-index: 2;
+    }
+    #uploadPdf #uploadYes .preview-filename {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0.32rem;
+      padding: 0.02rem 0.04rem;
+      font-size: 0.2rem;
+      color: #fff;
+      background: rgba(0,0,0,0.5);
+      text-align: right;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      pointer-events: none;
+      z-index: 1;
+    }
+    #uploadPdf #loading { display: none; }
+    #uploadPdf #uploadImg {
+      width: 0.6rem;
+      height: 0.6rem;
+    }
+    #uploadPdf .upload-text { font-size: 0.24rem; margin-top: 0.1rem; }
+    /* 覆盖在图片上的圆形进度条 */
+    .upload-progress {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 3;
+    }
+    .upload-progress-circle {
+      position: relative;
+      width: 1.2rem;
+      height: 1.2rem;
+    }
+    .upload-progress-circle svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+    .upload-progress-circle circle.bg {
+      stroke: rgba(0, 0, 0, 0.35);
+      stroke-width: 0.12rem;
+      fill: none;
+    }
+    .upload-progress-circle circle.fg {
+      stroke: #F6DA9A;
+      stroke-width: 0.12rem;
+      fill: none;
+      stroke-linecap: round;
+      stroke-dasharray: 0;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 0.15s linear;
+    }
+    .upload-progress-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.24rem;
+      font-weight: 600;
+      color: #F6DA9A;
+      text-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
+    }
+    .upload-tips {
+      margin-top: 0.16rem;
+      font-size: 0.24rem;
+      color: #BAC2D2FF;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+    }
+    .upload-tips .van-icon {
+      flex-shrink: 0;
+      vertical-align: middle;
+      line-height: 1;
+      font-size: 18px !important;
+    }
+    .image-preview-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 0.4rem;
+      box-sizing: border-box;
+    }
+    .image-preview-overlay.show {
+      display: flex;
+    }
+    .image-preview-overlay img {
+      max-width: 100%;
+      max-height: 90vh;
+      object-fit: contain;
+    }
+    .image-preview-close {
+      position: absolute;
+      top: 0.2rem;
+      right: 0.2rem;
+      width: 0.6rem;
+      height: 0.6rem;
+      background: rgba(0,0,0,0.6);
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 0.4rem;
+      cursor: pointer;
+      line-height: 0.6rem;
+      padding: 0;
+      text-align: center;
+    }
+    .confirm-btn {
+      border-radius: 0.08rem;
+      color: #653E26;
+      font-size: 0.3rem;
+      padding: 0.2rem 0;
+      margin: 0.4rem 0.02rem 0.1rem;
+      text-align: center;
+      background: linear-gradient(90deg, #F6DA9A 0%, #DCB364 100%);
+      cursor: pointer;
+    }
+    .confirm-btn.disabled {
+      background: #4C4F65;
+      color: #8F9AB3;
+      cursor: not-allowed;
+    }
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      padding: 0.2rem 0.4rem;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      border-radius: 0.16rem;
+      font-size: 0.24rem;
+      z-index: 9999;
+      display: none;
+    }
+    .toast.show {
+      display: block;
+    }
+
+    /* 仅在触摸设备上启用"橡皮筋"式弹性滚动效果 */
+    @media (hover: none) and (pointer: coarse) {
+      body {
+        overscroll-behavior-y: auto;
+        overscroll-behavior-x: none;
+        -webkit-overflow-scrolling: touch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container-not-receive">
+    <div class="not-receive">
+      <div class="receive-item">
+        <div class="title-content title-color" id="orderAmountLabel">Order Amount</div>
+        <div class="input-content">
+          <input type="text" id="orderAmount" disabled placeholder="please enter content">
+        </div>
+      </div>
+      <div class="receive-item">
+        <div class="title-content title-color" id="orderNumberLabel">Order Number</div>
+        <div class="input-content">
+          <input type="text" id="orderNumber" disabled placeholder="Order Number">
+        </div>
+      </div>
+      <div class="receive-item">
+        <div class="title-content" id="utrLabel">Utr Number</div>
+        <div class="input-content">
+          <input type="text" id="utrNumber" maxlength="12" placeholder="please enter UTR">
+        </div>
+      </div>
+      <div class="receive-item">
+        <div class="title-pdf" id="upiLabel">Receiver UPI ID</div>
+        <div class="input-content">
+          <input type="text" id="upiId" maxlength="12" placeholder="Please input UPI ID">
+        </div>
+      </div>
+      <div class="receive-item">
+        <div class="title-content" id="dprdLabel">Deposit proof receipt detail</div>
+        <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp">
+        <div id="uploadPdf">
+          <div id="uploadNo">
+            <img id="uploadImg" src="./images/icon_upload@2x.png" alt="">
+            <span class="upload-text" id="uploadText">Upload</span>
+          </div>
+          <div id="uploadYes">
+            <img id="uploadPreviewImg" src="" alt="">
+            <span class="preview-delete" id="previewDelete" title="Delete">×</span>
+            <span class="preview-filename van-ellipsis" id="previewFilename"></span>
+            <div class="upload-progress" id="uploadProgress">
+              <div class="upload-progress-circle">
+                <svg viewBox="0 0 100 100">
+                  <circle class="bg" cx="50" cy="50" r="42"></circle>
+                  <circle class="fg" id="uploadProgressCircle" cx="50" cy="50" r="42"></circle>
+                </svg>
+                <div class="upload-progress-text" id="uploadProgressText">0%</div>
+              </div>
+            </div>
+          </div>
+          <div id="loading"></div>
+        </div>
+        <div class="upload-tips" id="uploadTips">
+          <span id="uploadTipsText">Click to check the Deposit Proof Example</span>&nbsp;<i class="van-icon van-icon-info-o" style="color: orange; font-size: 18px;"></i>
+        </div>
+      </div>
+      <div class="confirm-btn" id="confirmBtn">Confirm</div>
+    </div>
+  </div>
+
+  <div class="image-preview-overlay" id="imagePreviewOverlay">
+    <button class="image-preview-close" id="imagePreviewClose">&times;</button>
+    <img id="imagePreviewImg" src="./images/deposit_proof_example.jpg" alt="Deposit Proof Example" onerror="this.style.display='none';var p=this.nextElementSibling;if(p)p.style.display='block';">
+    <div id="imagePreviewPlaceholder" style="display:none;color:rgba(255,255,255,0.8);font-size:0.28rem;text-align:center;">Deposit Proof Example (add images/deposit_proof_example.jpg)</div>
+  </div>
+
+  <script src="./js/GDBridge.js"></script>
+  <script>
+    function getUrlParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name) || '';
+    }
+    function getLang() {
+      if (window.GLJsBridge && typeof window.GLJsBridge.getLanguage === 'function') {
+        try {
+          const appLang = window.GLJsBridge.getLanguage();
+          if (appLang && appLang !== 'x') {
+            const lang = (appLang || 'en').toLowerCase();
+            if (['en', 'hi', 'ar'].includes(lang)) return lang;
+          }
+        } catch (e) {}
+      }
+      const urlLang = getUrlParam('lang');
+      if (urlLang) {
+        const lang = urlLang.toLowerCase();
+        if (['en', 'hi', 'ar'].includes(lang)) return lang;
+      }
+      try {
+        const stored = localStorage.getItem('op_lang');
+        if (stored) return stored;
+      } catch (e) {}
+      return 'en';
+    }
+    function getToken() {
+      if (window.GLJsBridge && typeof window.GLJsBridge.getToken === 'function') {
+        try {
+          const t = window.GLJsBridge.getToken();
+          if (t && t !== 'x') return t;
+        } catch (e) {}
+      }
+      return getUrlParam('token') || '';
+    }
+
+    const I18N = {
+      en: {
+        dnr: 'Deposit Not Receive',
+        orderAmount: 'Order Amount',
+        orderNumber: 'Order Number',
+        un: 'Utr Number',
+        rupi: 'Receiver UPI ID',
+        dprd: 'Deposit proof receipt detail(pictures only support jpg/jpeg/png/webp)',
+        cdpe: 'Click to check the Deposit Proof Example',
+        upload: 'Upload',
+        confirm: 'Confirm',
+        confirmDisabled: 'Confirm',
+        inputUpiId: 'Please input UPI ID',
+        pleaseEC: 'Please enter content',
+        peUtr: 'please enter UTR',
+        pidp: 'Please input Deposit Proof',
+        osjpwf: 'only supports JPG/PNG/WEBP format',
+        fileTooLarge: 'File size cannot exceed 5MB',
+        uploadSuccessful: 'Upload Successful',
+        qss: 'question submitted successfully',
+        networkError: 'Network error'
+      },
+      hi: {
+        dnr: 'जमा प्राप्त नहीं हुआ',
+        orderAmount: 'ऑर्डर राशि',
+        orderNumber: 'ऑर्डर नंबर',
+        un: 'UTR नंबर',
+        rupi: 'प्राप्तकर्ता UPI आईडी',
+        dprd: 'जमा प्रमाण रसीद विवरण (चित्र केवल jpg/jpeg/png/webp प्रारूप में समर्थित हैं)',
+        cdpe: 'जमा प्रमाण उदाहरण देखने के लिए क्लिक करें',
+        upload: 'अपलोड करें',
+        confirm: 'पुष्टि करें',
+        confirmDisabled: 'पुष्टि करें',
+        inputUpiId: 'कृपया UPI ID दर्ज करें',
+        pleaseEC: 'कृपया सामग्री दर्ज करें',
+        peUtr: 'कृपया UTR दर्ज करें',
+        pidp: 'कृपया जमा प्रमाण दर्ज करें',
+        osjpwf: 'केवल JPG/PNG/WEBP प्रारूप समर्थित',
+        fileTooLarge: 'फ़ाइल का आकार 5MB से अधिक नहीं हो सकता',
+        uploadSuccessful: 'अपलोड सफल',
+        qss: 'प्रश्न सफलतापूर्वक जमा कर दिया गया',
+        networkError: 'नेटवर्क त्रुटि'
+      },
+      ar: {
+        dnr: 'الإيداع لم يُستلم',
+        orderAmount: 'مبلغ الطلب',
+        orderNumber: 'رقم الطلب',
+        un: 'رقم UTR',
+        rupi: 'معرف UPI للمستلم',
+        dprd: 'تفاصيل إيصال الإيداع (jpg/jpeg/png/webp فقط)',
+        cdpe: 'انقر للتحقق من مثال إثبات الإيداع',
+        upload: 'رفع',
+        confirm: 'تأكيد',
+        confirmDisabled: 'تأكيد',
+        inputUpiId: 'يرجى إدخال معرف UPI',
+        pleaseEC: 'يرجى إدخال المحتوى',
+        peUtr: 'يرجى إدخال UTR',
+        pidp: 'يرجى إدخال إثبات الإيداع',
+        osjpwf: 'يدعم فقط JPG/PNG/WEBP',
+        fileTooLarge: 'لا يمكن أن يتجاوز حجم الملف 5 ميجابايت',
+        uploadSuccessful: 'تم الرفع بنجاح',
+        qss: 'تم إرسال السؤال بنجاح',
+        networkError: 'خطأ في الشبكة'
+      }
+    };
+
+    function t(key) {
+      const lang = getLang();
+      const pack = I18N[lang] || I18N.en;
+      return pack[key] || I18N.en[key] || '';
+    }
+
+    function applyI18n() {
+      document.getElementById('orderAmountLabel').textContent = t('orderAmount');
+      document.getElementById('orderNumberLabel').textContent = t('orderNumber');
+      document.getElementById('utrLabel').textContent = t('un');
+      document.getElementById('upiLabel').textContent = t('rupi');
+      document.getElementById('dprdLabel').textContent = t('dprd');
+      document.getElementById('uploadTipsText').textContent = t('cdpe');
+      document.getElementById('uploadText').textContent = t('upload');
+      document.getElementById('confirmBtn').textContent = t('confirm');
+      document.getElementById('orderAmount').placeholder = t('pleaseEC');
+      document.getElementById('orderNumber').placeholder = t('orderNumber');
+      document.getElementById('upiId').placeholder = t('inputUpiId');
+    }
+
+    function showToast(message) {
+      var toast = document.getElementById('toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'toast';
+        toast.className = 'toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(function () {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    function getApiBaseUrl() {
+      if (window.envConfig && envConfig.base_url) return envConfig.base_url;
+      if (typeof base_url !== 'undefined' && base_url) return base_url;
+      return '';
+    }
+    function getUploadBaseUrl() {
+      if (window.envConfig && envConfig.upload_base_url) return envConfig.upload_base_url;
+      if (typeof upload_base_url !== 'undefined' && upload_base_url) return upload_base_url;
+      return 'https://up.luckyclub.cc';
+    }
+
+    function requestWithToken(path, body) {
+      return EncryptedRequest.post(path, body || {}, {
+        getToken: getToken,
+        getLang: getLang
+      });
+    }
+
+    function updateProgress(percent) {
+      percent = Math.max(0, Math.min(100, Number(percent) || 0));
+      var circle = document.getElementById('uploadProgressCircle');
+      var text = document.getElementById('uploadProgressText');
+      if (text) {
+        text.textContent = percent.toFixed(0) + '%';
+      }
+      if (circle) {
+        var r = circle.r && circle.r.baseVal ? circle.r.baseVal.value : 42;
+        var c = 2 * Math.PI * r;
+        circle.style.strokeDasharray = c;
+        circle.style.strokeDashoffset = c * (1 - percent / 100);
+      }
+    }
+
+    function uploadFile(file) {
+      return new Promise(function (resolve, reject) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const token = getToken();
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', getUploadBaseUrl() + '/user/file/image');
+        if (token) {
+          xhr.setRequestHeader('authorization', token);
+        }
+        xhr.upload.onprogress = function (event) {
+          if (event.lengthComputable) {
+            var raw = (event.loaded / event.total) * 100; // 0 - 100
+            if (raw < 0) raw = 0;
+            if (raw > 100) raw = 100;
+            // 映射为 30% - 100% 的真实上传进度
+            var mapped = 30 + raw * 0.7;
+            if (mapped > 100) mapped = 100;
+            updateProgress(mapped);
+          }
+        };
+        xhr.onload = function () {
+          if (xhr.status === 200) {
+            try {
+              const res = JSON.parse(xhr.responseText);
+              if (res.code === 200 || res.code === '200') {
+                var webPath = '';
+                var d = res.data;
+                if (typeof d === 'string') {
+                  webPath = d;
+                } else if (d && Array.isArray(d) && d[0]) {
+                  webPath = d[0].webPath || d[0].url || d[0].path || '';
+                } else if (d && typeof d === 'object') {
+                  webPath = d.webPath || d.url || d.path || '';
+                }
+                resolve(webPath);
+              } else {
+                reject(res.message || 'Upload failed');
+              }
+            } catch (e) {
+              reject('Parse error');
+            }
+          } else {
+            reject('Upload failed');
+          }
+        };
+        xhr.onerror = function () { reject('Network error'); };
+        xhr.send(formData);
+      });
+    }
+
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      let orderAmount = params.get('orderAmount') || '';
+      let orderNumber = params.get('orderNumber') || '';
+      // 若 URL 被 App/重定向 丢掉 query，从 sessionStorage 取（recharge-history 跳转前会写入）
+      if (!orderAmount || !orderNumber) {
+        try {
+          orderAmount = orderAmount || sessionStorage.getItem('op_dnr_orderAmount') || '';
+          orderNumber = orderNumber || sessionStorage.getItem('op_dnr_orderNumber') || '';
+          if (orderAmount || orderNumber) {
+            var clean = window.location.pathname + '?orderAmount=' + encodeURIComponent(orderAmount) + '&orderNumber=' + encodeURIComponent(orderNumber);
+            history.replaceState(null, '', clean);
+          }
+        } catch (e) {}
+      }
+      var orderAmountInput = document.getElementById('orderAmount');
+      var orderNumberInput = document.getElementById('orderNumber');
+      orderAmountInput.value = orderAmount;
+      orderNumberInput.value = orderNumber;
+
+      // 根据是否有值，给输入容器加上高亮描边样式
+      function updateInputBorderState(input) {
+        if (!input) return;
+        var wrap = input.parentElement;
+        if (!wrap) return;
+        if (input.value && String(input.value).trim() !== '') {
+          wrap.classList.add('has-value');
+        } else {
+          wrap.classList.remove('has-value');
+        }
+      }
+
+      let depositProof = '';
+      const uploadPdf = document.getElementById('uploadPdf');
+      const uploadNo = document.getElementById('uploadNo');
+      const uploadYes = document.getElementById('uploadYes');
+      const loading = document.getElementById('loading');
+      const uploadProgress = document.getElementById('uploadProgress');
+      const fileInput = document.getElementById('fileInput');
+      const confirmBtn = document.getElementById('confirmBtn');
+
+      uploadPdf.addEventListener('click', function (e) {
+        if (e.target.closest('#previewDelete')) return;
+        if (uploadYes.style.display === 'block' || getComputedStyle(uploadYes).display === 'block') return;
+        fileInput.click();
+      });
+      document.getElementById('previewDelete').addEventListener('click', function (e) {
+        e.stopPropagation();
+        depositProof = '';
+        uploadYes.style.display = 'none';
+        uploadNo.style.display = 'flex';
+        uploadPdf.classList.remove('preview-mode');
+        document.getElementById('uploadPreviewImg').src = '';
+        document.getElementById('previewFilename').textContent = '';
+        if (uploadProgress) {
+          uploadProgress.style.display = 'none';
+          updateProgress(0);
+        }
+        updateConfirmBtn();
+      });
+
+      var imagePreviewOverlay = document.getElementById('imagePreviewOverlay');
+      var imagePreviewClose = document.getElementById('imagePreviewClose');
+      var imagePreviewImg = document.getElementById('imagePreviewImg');
+      document.getElementById('uploadTips').addEventListener('click', function () {
+        imagePreviewImg.src = './images/deposit_proof_example.jpg';
+        imagePreviewImg.style.display = '';
+        var ph = document.getElementById('imagePreviewPlaceholder');
+        if (ph) ph.style.display = 'none';
+        imagePreviewOverlay.classList.add('show');
+      });
+      document.getElementById('uploadPreviewImg').addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (!this.src) return;
+        imagePreviewImg.src = this.src;
+        imagePreviewImg.style.display = '';
+        var ph = document.getElementById('imagePreviewPlaceholder');
+        if (ph) ph.style.display = 'none';
+        imagePreviewOverlay.classList.add('show');
+      });
+      imagePreviewClose.addEventListener('click', function () {
+        imagePreviewOverlay.classList.remove('show');
+      });
+      imagePreviewOverlay.addEventListener('click', function (e) {
+        if (e.target === imagePreviewOverlay) {
+          imagePreviewOverlay.classList.remove('show');
+        }
+      });
+
+      fileInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (!file) return;
+        const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+          showToast(t('osjpwf'));
+          this.value = '';
+          return;
+        }
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) {
+          showToast(t('fileTooLarge'));
+          this.value = '';
+          return;
+        }
+
+        // 立即显示预览图，再在图上展示圆形进度
+        uploadNo.style.display = 'none';
+        uploadYes.style.display = 'block';
+        uploadPdf.classList.add('preview-mode');
+        if (uploadProgress) {
+          uploadProgress.style.display = 'flex';
+        }
+        // 本地准备阶段直接走到 30%
+        updateProgress(30);
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          document.getElementById('uploadPreviewImg').src = e.target.result;
+          document.getElementById('previewFilename').textContent = file.name || '';
+        };
+        reader.readAsDataURL(file);
+
+        uploadFile(file).then(function (webPath) {
+          depositProof = webPath;
+          updateProgress(100);
+          // 等圆环走到 100% 后再轻微延迟隐藏，时间感更顺滑
+          if (uploadProgress) {
+            setTimeout(function () {
+              uploadProgress.style.display = 'none';
+            }, 300);
+          }
+          showToast(t('uploadSuccessful'));
+          updateConfirmBtn();
+        }).catch(function (err) {
+          if (uploadProgress) {
+            uploadProgress.style.display = 'none';
+          }
+          uploadYes.style.display = 'none';
+          uploadPdf.classList.remove('preview-mode');
+          uploadNo.style.display = 'flex';
+          updateProgress(0);
+          showToast(err || t('networkError'));
+        });
+        this.value = '';
+      });
+
+      function updateConfirmBtn() {
+        if (depositProof) {
+          confirmBtn.classList.remove('disabled');
+          confirmBtn.textContent = t('confirm');
+        } else {
+          confirmBtn.classList.add('disabled');
+          confirmBtn.textContent = t('confirm');
+        }
+      }
+
+      confirmBtn.addEventListener('click', function () {
+        if (confirmBtn.classList.contains('disabled')) return;
+        const utrNumber = document.getElementById('utrNumber').value.trim();
+        const upiId = document.getElementById('upiId').value.trim();
+        if (!utrNumber) {
+          showToast(t('peUtr'));
+          return;
+        }
+        if (!depositProof) {
+          showToast(t('pidp'));
+          return;
+        }
+        const orderNumber = document.getElementById('orderNumber').value.trim();
+        const jsonStr = JSON.stringify({
+          isCompress: '0',
+          type: 1,
+          upi_id: upiId,
+          order_id: orderNumber,
+          utr_id: utrNumber,
+          deposit_proof: depositProof
+        });
+        const payload = {
+          title: 'Deposit Not Receive',
+          content: jsonStr
+        };
+        confirmBtn.style.pointerEvents = 'none';
+        requestWithToken('/user/issue/add', payload)
+          .then(function (res) {
+            confirmBtn.style.pointerEvents = '';
+            if (res.code === 200 || res.code === '200') {
+              showToast(t('qss'));
+            } else {
+              showToast(res.message || t('networkError'));
+            }
+          })
+          .catch(function () {
+            confirmBtn.style.pointerEvents = '';
+            showToast(t('networkError'));
+          });
+      });
+
+      updateConfirmBtn();
+      if (!depositProof) {
+        confirmBtn.classList.add('disabled');
+      }
+
+      // 标记只读字段容器（只读字段默认 40% 金色描边）
+      if (orderAmountInput && orderAmountInput.parentElement) {
+        orderAmountInput.parentElement.classList.add('readonly');
+      }
+      if (orderNumberInput && orderNumberInput.parentElement) {
+        orderNumberInput.parentElement.classList.add('readonly');
+      }
+
+      // 初始化输入描边状态（包括 URL / session 带过来的字段）
+      updateInputBorderState(orderAmountInput);
+      updateInputBorderState(orderNumberInput);
+      updateInputBorderState(document.getElementById('utrNumber'));
+      updateInputBorderState(document.getElementById('upiId'));
+
+      // 可编辑输入框在输入时实时更新描边
+      ['utrNumber', 'upiId'].forEach(function (id) {
+        var input = document.getElementById(id);
+        if (!input) return;
+        input.addEventListener('input', function () {
+          updateInputBorderState(input);
+        });
+        input.addEventListener('blur', function () {
+          updateInputBorderState(input);
+        });
+      });
+
+      document.addEventListener('DOMContentLoaded', function () {
+        applyI18n();
+        document.title = t('dnr') || 'Deposit Not Receive';
+        var params = new URLSearchParams(window.location.search);
+        if (params.has('token') || params.has('lang')) {
+          params.delete('token');
+          params.delete('lang');
+          var cleanSearch = params.toString();
+          var cleanUrl = window.location.pathname + (cleanSearch ? '?' + cleanSearch : '') + window.location.hash;
+          history.replaceState(null, '', cleanUrl);
+        }
+      });
+
+      (function init() {
+        if (window.GLJsBridge) {
+          window.GLJsBridge.setToolbarVisibility('0');
+        }
+      })();
+    })();
+  </script>
+</body>
+</html>

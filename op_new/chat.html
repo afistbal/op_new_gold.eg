@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Customer Service</title>
+    <link rel="icon" type="image/png" href="./images/icon.png">
+    <link rel="stylesheet" href="./css/touch-scroll.css">
+    <script>
+        function IsPhone() {
+            var info = navigator.userAgent;
+            return /mobile/i.test(info);
+        }
+        function setHtmlFontSize() {
+            var html = document.getElementsByTagName('html')[0];
+            var deviceWidth = document.documentElement.getBoundingClientRect().width;
+            var designWidth = 750;
+            var initFontSize = 100;
+            if (IsPhone()) {
+                html.style.fontSize = (deviceWidth / designWidth) * initFontSize + 'px';
+            } else {
+                html.style.fontSize = '54px';
+            }
+        }
+        window.onresize = setHtmlFontSize;
+        setHtmlFontSize();
+    </script>
+    <script src="./js/env.js"></script>
+    <link rel="stylesheet" href="./chats/style.css">
+    <style>
+        /* H5 顶部导航交由 App 或浏览器自身处理，这里不再自绘头部 */
+
+        /* 仅在触摸设备上启用"橡皮筋"式弹性滚动效果 */
+        @media (hover: none) and (pointer: coarse) {
+            body {
+                overscroll-behavior-y: auto;
+                overscroll-behavior-x: none;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-chat" id="chatContainer">
+        <div class="row-get-history" id="historyBtn">
+            <div class="btn-get-history" id="loadHistoryBtn">Load History</div>
+        </div>
+        <div class="text-load" id="allLoaded" style="display:none;">All loaded</div>
+        <div class="img-preview-mask" id="imgPreviewMask" style="display:none;">
+            <div class="img-preview-backdrop" id="imgPreviewBackdrop"></div>
+            <img class="img-preview-img" id="imgPreviewImg" src="" alt="">
+            <button class="img-preview-close" id="imgPreviewClose" type="button" aria-label="Close">×</button>
+        </div>
+        <div class="row-content-box" id="messageBox"></div>
+        <div class="row-bottom-bar">
+            <div class="input-wrapper">
+                <input type="file" id="imageInput" accept="image/jpeg,image/png,image/jpg" style="display:none;">
+                <button class="btn-icon" id="uploadBtn"><img src="./chats/icon_upload.png" alt="upload"></button>
+                <textarea id="messageInput" placeholder="Please enter your question" autocomplete="off" rows="1"></textarea>
+                <button class="btn-send" id="sendBtn">Send</button>
+            </div>
+        </div>
+    </div>
+    <script src="./js/GDBridge.js"></script>
+    <script src="./chats/chat.js"></script>
+</body>
+</html>

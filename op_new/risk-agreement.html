@@ -6,6 +6,7 @@
     <title>Risk Agreement</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/png" href="./images/icon.png" />
+    <script src="./js/mirror-lang.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -67,6 +68,11 @@
         .risk-agreement {
             /* margin-top: 20px; */
             padding: 12px;
+        }
+
+        /* 镜像样式：阿语 / EG 环境 */
+        .mirror-mode .top-nav .back .back-img {
+            transform: scaleX(-1);
         }
     </style>
 </head>
@@ -155,9 +161,14 @@
         </div>
     </div>
     <script>
-        // function skipBack() {
-        //     window.history.back();
-        // } 
+        // 统一使用 mirror-lang.js 按 app / URL 语言开启/关闭镜像
+        (function init() {
+            if (window.EGMirror && typeof window.EGMirror.applyMirror === 'function') {
+                try {
+                    window.EGMirror.applyMirror(); // 默认 ar（镜像），传 en 时为英文不镜像
+                } catch (e) { }
+            }
+        })();
     </script>
 </body>
 

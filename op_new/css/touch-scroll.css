@@ -1,0 +1,22 @@
+/* 仅在触摸设备上启用"橡皮筋"式弹性滚动效果 */
+@media (hover: none) and (pointer: coarse) {
+  html,
+  body,
+  .container,
+  .container-about-us,
+  .container-risk-agreement,
+  .container-confidentiality-agreement,
+  .page-self-service,
+  .page-self-detail,
+  .page-self-list,
+  .container-wallet-recharge-history,
+  .wapper,
+  .container-not-receive,
+  .download {
+    /* 纵向允许弹性滚动 */
+    overscroll-behavior-y: auto;
+    overscroll-behavior-x: none;
+    /* iOS Safari 专用：启用惯性+弹性滚动 */
+    -webkit-overflow-scrolling: touch;
+  }
+}
