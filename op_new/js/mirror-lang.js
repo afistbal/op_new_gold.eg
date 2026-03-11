@@ -51,8 +51,8 @@
 
     if (!resolved) resolved = 'ar'
 
-    // 只认 en / hi / ar，其余（含 eg）归一为 ar
-    if (resolved !== 'en' && resolved !== 'hi' && resolved !== 'ar') resolved = 'ar'
+    // 全局语言策略：只有 en 用英文，其它（hi/eg/…）全部按 ar 处理
+    resolved = resolved === 'en' ? 'en' : 'ar'
 
     if (source === 'app' || source === 'url') {
       try {

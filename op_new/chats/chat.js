@@ -31,30 +31,20 @@
     }
 
     function getLang() {
-        // 优先使用全局镜像语言，保证与其它页面一致
+        // 语言策略：只有 EN 用英文，其它全部按 AR 处理
+        let lang = null;
         if (window.EGMirror && typeof window.EGMirror.detectLang === 'function') {
-            const l = window.EGMirror.detectLang();
-            if (l) return l;
-        }
-        if (window.GLJsBridge && typeof window.GLJsBridge.getLanguage === 'function') {
+            lang = window.EGMirror.detectLang();
+        } else if (window.GLJsBridge && typeof window.GLJsBridge.getLanguage === 'function') {
             try {
-                const appLang = window.GLJsBridge.getLanguage();
-                if (appLang && appLang !== 'x') {
-                    const lang = (appLang || 'en').toLowerCase();
-                    if (['en', 'hi', 'ar'].includes(lang)) return lang;
-                }
+                lang = window.GLJsBridge.getLanguage();
             } catch (e) {}
+        } else {
+            const urlLang = getUrlParam('lang');
+            if (urlLang) lang = urlLang;
         }
-        const urlLang = getUrlParam('lang');
-        if (urlLang) {
-            const lang = urlLang.toLowerCase();
-            if (['en', 'hi', 'ar'].includes(lang)) return lang;
-        }
-        try {
-            const stored = localStorage.getItem('op_lang');
-            if (stored) return stored;
-        } catch (e) {}
-        return 'en';
+        lang = (lang || 'en').toLowerCase();
+        return lang === 'en' ? 'en' : 'ar';
     }
 
     const CHAT_I18N = {
@@ -63,12 +53,6 @@
             send: 'Send',
             loadHistory: 'Load History',
             allLoaded: 'All loaded'
-        },
-        hi: {
-            placeholder: 'कृपया अपना प्रश्न दर्ज करें',
-            send: 'भेजें',
-            loadHistory: 'इतिहास लोड करें',
-            allLoaded: 'सभी लोड हो गए'
         },
         ar: {
             placeholder: 'يرجى إدخال سؤالك',
