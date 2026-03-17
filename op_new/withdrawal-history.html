@@ -418,7 +418,14 @@
                 sessionStorage.setItem('op_wp_orderAmount', orderAmount);
                 sessionStorage.setItem('op_wp_orderNumber', orderNumber);
               } catch (e) {}
-              // H5 下统一走浏览器跳转
+              // App 内走 GDBridge.jumpWebBrows，H5 走浏览器跳转
+              try {
+                if (window.GLJsBridge && GDBridge && GDBridge.isApp && GDBridge.isApp()) {
+                  GDBridge.jumpWebBrows(url);
+                  return;
+                }
+              } catch (e) {}
+
               window.location.href = url;
             };
             btnWrap.appendChild(btn);

@@ -8,7 +8,7 @@ const csso = require('csso');
 // 源码统一使用 op_new 这一套，打包时按环境输出到不同目标目录（埃及黑金）
 const ROOT = path.resolve(__dirname, '..'); // D:\JJ-game
 const SRC_ROOT = path.join(__dirname, 'op_new'); // D:\JJ-game\op_new_gold.build.eg\op_new
-const DEST_ROOT = path.join(ROOT, 'lot.eg.www', 'wap.prod.eg'); // D:\JJ-game\lot.eg.www\wap.prod.eg
+const DEST_ROOT = path.join(ROOT, 'lot.eg.www'); // D:\JJ-game\lot.eg.www
 
 // 运行模式：dev / prod / all（默认 dev）
 const MODE = process.argv[2] || 'dev';
@@ -21,10 +21,10 @@ async function copyAndMinifyFolder(targetFolder, envType) {
   console.log(`源: ${srcDir}`);
   console.log(`目标: ${destDir}`);
 
-  // 覆盖复制静态文件，避免删除目录导致 EBUSY
-  await fs.ensureDir(destDir);
-  await fs.copy(srcDir, destDir, { overwrite: true });
-  console.log(`已复制到 ${targetFolder}`);
+  // 强覆盖目录：先清空目标目录，再复制整个源码目录
+  await fs.emptyDir(destDir);
+  await fs.copy(srcDir, destDir);
+  console.log(`已强覆盖复制到 ${targetFolder}`);
 
   // 根据环境覆盖 env.js
   const envFileName = envType === 'prod' ? 'env.prod.js' : 'env.dev.js';
