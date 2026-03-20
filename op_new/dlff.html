@@ -307,8 +307,6 @@
         <div class="title" id="titleImg"></div>
         <div class="content" id="appImg">
         </div>
-        
-        <div class="people" id="peopleImg"></div>
         <div class="footer" id="joinImg"></div>
       </div>
     </div>
@@ -440,9 +438,8 @@
         document.getElementById('downloadBtn').textContent = downloadTexts[lang] || downloadTexts['ar'];
 
         document.getElementById('titleImg').style.backgroundImage = 'url(./appicon/title.png)';
-        document.getElementById('appImg').style.backgroundImage = 'url(./appicon/app.png)';
-        document.getElementById('peopleImg').style.backgroundImage = 'url(./appicon/people.png)';
-        document.getElementById('joinImg').style.backgroundImage = 'url(./appicon/join.png)';
+        document.getElementById('appImg').style.backgroundImage = 'url(./appicon/app.png?v1)';
+        document.getElementById('joinImg').style.backgroundImage = 'url(./appicon/join.png?v1)';
 
         function bindDownloadEvent() {
           const downloadElement = document.querySelector('.download.in');
