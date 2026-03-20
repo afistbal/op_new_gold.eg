@@ -7,24 +7,9 @@
   <title>تحميل التطبيق</title>
   <link rel="icon" type="image/png" href="./images/icon.png">
   <script src="./js/env.js"></script>
-  <script src="./js/crypto-js.min.js"></script>
-  <script src="./js/md5.min.js"></script>
-  <script src="./js/requestEncrypt.js"></script>
-  <script src="./js/encryptedRequest.js"></script>
   <script>
-    // 通过统一加密封装获取 apkHost，内部已带 scene=gold 等公共参数
-    window.__apkHost = null;
-    try {
-      if (window.EncryptedRequest && typeof EncryptedRequest.post === 'function') {
-        EncryptedRequest.post('/user/gdUser/judAuditVersion')
-          .then(function (d) {
-            if (d && d.code === 200 && d.data && d.data.apkHost) {
-              window.__apkHost = d.data.apkHost;
-            }
-          })
-          .catch(function () {});
-      }
-    } catch (e) {}
+    // APK 下载域名：不再调用 /user/gdUser/judAuditVersion，直接走固定配置
+    window.__apkHost = 'https://dweg.gogdownload.com';
   </script>
   <script>
     function IsPhone() {
@@ -316,35 +301,12 @@
 
   <script>
     (function() {
-      let apkHost = null;
-
-      function getApiBaseUrl() {
-        return 'https://ieg.yano777.com';
-      }
+      // apkHost 固定来源（优先读取 env.js 写入的 window.__apkHost）
+      let apkHost = window.__apkHost;
 
       function getUrlParam(name) {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(name) || '';
-      }
-
-      function fetchApkHost() {
-        const apiBaseUrl = getApiBaseUrl();
-        const apiUrl = apiBaseUrl + '/user/gdUser/judAuditVersion';
-
-        fetch(apiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.code === 200 && data.data && data.data.apkHost) {
-            apkHost = data.data.apkHost;
-          }
-        })
-        .catch(error => {
-        });
       }
 
       function showToast(message) {
@@ -413,8 +375,6 @@
       }
 
       function init() {
-        fetchApkHost();
-
         const app_in_code = getUrlParam('app_in_code');
         const lang = getUrlParam('lang') || 'ar';
 
