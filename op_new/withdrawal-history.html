@@ -426,7 +426,26 @@
                 }
               } catch (e) {}
 
-              window.location.href = url;
+              // 非 App：新页面打开（避免覆盖当前列表页/iframe 容器页）
+              try {
+                // window.open 在部分环境返回值不可靠；我们只做“新页打开”，不再允许老页跳转
+                var newWin = window.open(url, '_blank', 'noopener,noreferrer');
+                if (newWin) return;
+              } catch (e) {}
+              // 兜底：可能被浏览器拦截弹窗（尤其是 iframe 场景）。提示用户允许弹窗。
+              try {
+                // 再尝试一次用 <a target="_blank"> 触发（有些内置浏览器更吃这一套）
+                var a = document.createElement('a');
+                a.href = url;
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                return;
+              } catch (e) {}
+              showToast('Popup blocked. Please allow popups.');
             };
             btnWrap.appendChild(btn);
             div.appendChild(btnWrap);

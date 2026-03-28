@@ -20,3 +20,52 @@
     -webkit-overflow-scrolling: touch;
   }
 }
+
+/* 隐藏页面滚动条（仍可正常滚动），避免默认/自定义滚动条样式干扰观感 */
+html,
+body {
+  -ms-overflow-style: none; /* IE / 旧 Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* 隐藏页面内部滚动容器的滚动条（iframe/列表页常见滚动的是这些容器） */
+.container,
+.container-about-us,
+.container-risk-agreement,
+.container-confidentiality-agreement,
+.page-self-service,
+.page-self-detail,
+.page-self-list,
+.container-wallet-recharge-history,
+.wapper,
+#wrapper,
+.container-not-receive,
+.download {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.container::-webkit-scrollbar,
+.container-about-us::-webkit-scrollbar,
+.container-risk-agreement::-webkit-scrollbar,
+.container-confidentiality-agreement::-webkit-scrollbar,
+.page-self-service::-webkit-scrollbar,
+.page-self-detail::-webkit-scrollbar,
+.page-self-list::-webkit-scrollbar,
+.container-wallet-recharge-history::-webkit-scrollbar,
+.wapper::-webkit-scrollbar,
+#wrapper::-webkit-scrollbar,
+.container-not-receive::-webkit-scrollbar,
+.download::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+

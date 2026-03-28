@@ -137,6 +137,17 @@
             }
         } catch (e) {}
         try {
+            let h5Abbr = getUrlParam('h5_abbr');
+            if (!h5Abbr) {
+                const titleParam = getUrlParam('title');
+                if (titleParam && titleParam.includes('h5_abbr=')) {
+                    const m = titleParam.match(/h5_abbr=([^&]+)/);
+                    if (m) h5Abbr = decodeURIComponent(m[1] || '');
+                }
+            }
+            if (h5Abbr) return String(h5Abbr).toUpperCase();
+        } catch (e) {}
+        try {
             const abbr = localStorage.getItem('op_abbr');
             if (abbr) return String(abbr).toUpperCase();
         } catch (e) {}
@@ -526,6 +537,8 @@
             if (this.isHistoryLoading || this.isAllHistory) return;
             this.isHistoryLoading = true;
             document.getElementById('loadHistoryBtn').textContent = 'Loading...';
+            // 每次请求前重新计算，确保 URL 传入的 h5_abbr 可以实时生效
+            this.countryAbbr = getCountryAbbr();
 
             const recordId = this.chatMessages.length > 0 ? (this.chatMessages[0].id || '') : '';
             const params = {
