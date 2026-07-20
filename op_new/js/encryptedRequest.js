@@ -14,6 +14,25 @@
     return '';
   }
 
+  function readIframeDecryptedToken() {
+    try {
+      if (window.OpIframeParamsDecrypt && typeof window.OpIframeParamsDecrypt.resolveTokenFromUrl === 'function') {
+        var token = window.OpIframeParamsDecrypt.resolveTokenFromUrl();
+        if (token) {
+          if (!window.__opIframeParams) {
+            window.__opIframeParams = window.OpIframeParamsDecrypt.bootstrap() || null;
+          }
+          if (window.__opIframeParams) window.__opIframeParams.token = token;
+          return String(token);
+        }
+      }
+      if (window.__opIframeParams && window.__opIframeParams.token) {
+        return String(window.__opIframeParams.token);
+      }
+    } catch (e) {}
+    return '';
+  }
+
   function defaultGetToken() {
     if (typeof window === 'undefined') return '';
     if (window.GLJsBridge && typeof window.GLJsBridge.getToken === 'function') {
@@ -22,6 +41,12 @@
         if (t && t !== 'x') return String(t);
       } catch (e) {}
     }
+    var iframeToken = readIframeDecryptedToken();
+    if (iframeToken) return iframeToken;
+    try {
+      var stored = localStorage.getItem('op_token');
+      if (stored) return stored;
+    } catch (e) {}
     try {
       var p = (window.location && window.location.search) ? window.location.search.slice(1).split('&') : [];
       for (var i = 0; i < p.length; i++) {
@@ -43,6 +68,19 @@
         }
       } catch (e) {}
     }
+    try {
+      if (window.__opIframeParams && window.__opIframeParams.lang) {
+        var cachedLang = String(window.__opIframeParams.lang).toLowerCase();
+        if (['en', 'hi', 'ar'].indexOf(cachedLang) !== -1) return cachedLang;
+      }
+      if (window.OpIframeParamsDecrypt && typeof window.OpIframeParamsDecrypt.bootstrap === 'function') {
+        var params = window.__opIframeParams || window.OpIframeParamsDecrypt.bootstrap();
+        if (params && params.lang) {
+          var iframeLang = String(params.lang).toLowerCase();
+          if (['en', 'hi', 'ar'].indexOf(iframeLang) !== -1) return iframeLang;
+        }
+      }
+    } catch (e) {}
     try {
       var search = window.location && window.location.search ? window.location.search : '';
       if (search) {
@@ -126,8 +164,16 @@
     // 开发环境请求日志（线上构建时通过压缩配置移除 console）
     if (typeof console !== 'undefined' && typeof console.log === 'function') {
       try {
-        // 这里直接输出完整 data（包括 authorization），方便你本地排查
-        console.log('[EncryptedRequest] POST', urlRoot, data);
+        // 开发日志隐藏 authorization，只保留长度，避免 token 泄露
+        var logData = {};
+        for (var key in data) {
+          if (Object.prototype.hasOwnProperty.call(data, key)) {
+            logData[key] = key === 'authorization'
+              ? (data[key] ? '***(' + String(data[key]).length + ')' : '(empty)')
+              : data[key];
+          }
+        }
+        console.log('[EncryptedRequest] POST', urlRoot, logData);
       } catch (e) {}
     }
 

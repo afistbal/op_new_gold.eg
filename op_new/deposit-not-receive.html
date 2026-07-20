@@ -32,6 +32,8 @@
   <script src="./js/crypto-js.min.js"></script>
   <script src="./js/md5.min.js"></script>
   <script src="./js/requestEncrypt.js"></script>
+  <script src="./js/iframeParamsDecrypt.js"></script>
+  <script src="./js/iframeSession.js"></script>
   <script src="./js/encryptedRequest.js"></script>
   <script src="./js/mirror-lang.js"></script>
   <style>
@@ -443,6 +445,7 @@
       return urlParams.get(name) || '';
     }
     function getToken() {
+      return IframeSession.getToken();
       // 1）优先 App 提供的 token
       if (window.GLJsBridge && typeof window.GLJsBridge.getToken === 'function') {
         try {

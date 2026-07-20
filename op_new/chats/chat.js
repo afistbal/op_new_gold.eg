@@ -14,6 +14,9 @@
     }
 
     function getToken() {
+        if (window.IframeSession && typeof window.IframeSession.getToken === 'function') {
+            return window.IframeSession.getToken();
+        }
         if (window.GLJsBridge && typeof window.GLJsBridge.getToken === 'function') {
             try {
                 const appToken = window.GLJsBridge.getToken();
@@ -78,6 +81,10 @@
     }
 
     function saveTokenAndLang() {
+        if (window.IframeSession && typeof window.IframeSession.saveTokenAndLang === 'function') {
+            window.IframeSession.saveTokenAndLang();
+            return;
+        }
         const urlToken = getUrlParam('token');
         const urlLang = getUrlParam('lang');
         let token = urlToken;
